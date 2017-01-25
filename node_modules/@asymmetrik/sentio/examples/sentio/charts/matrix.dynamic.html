@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Matrix. Dynamic Example.</title>
+
+	<link rel="stylesheet" href="../../../dist/sentio.css" />
+
+	<script src="../../../node_modules/d3/build/d3.js" charset="utf-8"></script>
+	<script src="../../../dist/sentio.js" charset="utf-8"></script>
+
+	<style>
+	</style>
+
+</head>
+<body>
+
+	<h1>Matrix Chart Example</h1>
+	<p>Standalone dynamic D3 Matrix Chart Example</p>
+
+	<div id="chart"></div>
+
+	<button onclick="updateData()">Update Data</button>
+
+	<script>
+		var chartDiv = d3.select('#chart');
+		var chart = sentio.chart.matrix()
+			.key(function(d, i) { return i; })
+			.value(function(d) { return d; })
+			.margin({ top: 20, right: 2, bottom: 2, left: 80 });
+
+		chart.init(chartDiv);
+		updateData();
+
+		function swap(i, j, arr) {
+			var t = arr[j];
+			arr[j] = arr[i];
+			arr[i] = t;
+		}
+
+		function updateData(){
+
+			var data = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+			var series = [];
+
+			series.push({ key: 'increasing', label: 'Increasing', values: data.map(function(d, i) { return i; }) });
+			series.push({ key: 'decreasing', label: 'Decreasing', values: data.map(function(d, i, arr) { return arr.length - i - 1; }) });
+			series.push({ key: 'upAndDown', label: 'Up and Down', values: data.map(function(d, i, arr) { return arr.length/2 - Math.abs(-i + arr.length/2); }) });
+			series.push({ key: 'flatHigh', label: 'Flat High', values: data.map(function(d, i) { return 19; })});
+			series.push({ key: 'flatLow', label: 'Flat Low', values: data.map(function(d, i) { return 0; }) });
+			series.push({ key: 'flatMid', label: 'Flat Mid', values: data.map(function(d, i) { return 10; }) });
+			series.push({ key: 'spikeHigh', label: 'Spike High', values: data.map(function(d, i) { return (Math.random() > 0.1)? 1 : 19; }) });
+			series.push({ key: 'spikeLow', label: 'Spike Low', values:data.map(function(d, i) { return (Math.random() > 0.1)? 19 : 1; }) });
+			series.push({ key: 'random', label: 'random', values: data.map(function(d, i) { return Math.random() * 19; }) });
+
+			// Remove a couple things
+			series.splice(Math.floor(Math.random() * series.length), 1);
+			series.splice(Math.floor(Math.random() * series.length), 1);
+
+			// Swap a couple things
+			swap(Math.floor(Math.random() * series.length), Math.floor(Math.random() * series.length), series);
+			swap(Math.floor(Math.random() * series.length), Math.floor(Math.random() * series.length), series);
+
+			chart.data(series).redraw();
+		}
+
+	</script>
+</body>
+</html>

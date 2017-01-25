@@ -1,0 +1,17 @@
+//=======================================
+//	Donut Chart
+//=======================================
+
+.sentio.donut .legend {
+	font: 12px sans-serif;
+}
+
+.sentio.donut .arc {
+	stroke: none;
+}
+
+.sentio.donut .arc.active,
+.sentio.donut .legend .entry.active rect {
+	stroke: #000;
+	stroke-width: 1.5px;
+}

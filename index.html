@@ -1,0 +1,47 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+
+  <title>Taxi Availability in Singapore</title>
+  <meta name="description" content="Real Time Taxi Availability in Singapore">
+  <meta name="author" content="SitePoint">
+
+  <link rel="stylesheet" href="node_modules/leaflet/dist/leaflet.css" />
+  <link rel="stylesheet" href="node_modules/font-awesome/css/font-awesome.min.css">
+  <link rel="stylesheet" href="assets/stylesheets/style.css">
+
+  <!--[if lt IE 9]>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.js"></script>
+  <![endif]-->
+</head>
+
+<body>
+  <div id="indicator">Best Viewed in 1280 x 768 or higher</div>
+  <div id="mapid"></div>
+  <div class="availability-chart"></div>
+  <div class="availability-chart-title">Taxi availability in the last 100 minutes<br />(Play to see map density changes every 5 mins)</div>
+  <div class="weekly-statistics-chart"></div>
+  <div class="weekly-statistics-chart-title">Taxi availability in the last 2 weeks<br />(Hourly data is used for better accuracy)</div>
+  <div class="play-button">
+    <i class="fa fa-play"></i>
+  </div>
+  <div class="pause-button button-hide">
+    <i class="fa fa-pause"></i>
+  </div>
+  <div id="separator"></div>
+ <!--  <div class="test-button">
+    <i class="fa fa-stop"></i>
+    Test
+  </div> -->
+  <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+  <script src="node_modules/moment/min/moment.min.js"></script>
+  <script src="node_modules/d3/build/d3.min.js"></script>
+  <script src="node_modules/d3-hexbin/build/d3-hexbin.min.js"></script>
+  <script src="assets/javascripts/d3-code-move.js"></script>
+  <script src="node_modules/leaflet/dist/leaflet.js"></script>
+  <script src="assets/javascripts/leaflet-d3.js"></script>
+  <script src="assets/javascripts/script.js"></script>
+</body>
+</html>

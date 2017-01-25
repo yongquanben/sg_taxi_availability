@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Static timeline with filter. Basic Example.</title>
+
+	<link rel="stylesheet" href="../../../../dist/sentio.css" />
+
+	<script src="../../../../node_modules/d3/build/d3.js" charset="utf-8"></script>
+	<script src="../../../../dist/sentio.js" charset="utf-8"></script>
+
+	<style>
+
+	.sentio.timeline .line.series1 { stroke: black; stroke-width: 1.5px; }
+	.sentio.timeline .area.series1 { fill: black; stroke: none; opacity: 0.1; }
+	.sentio.timeline .line.series2 { stroke: red; stroke-width: 1px; }
+	.sentio.timeline .area.series2 { fill: red; stroke: none; opacity: 0.1; }
+	.sentio.timeline .line.series3 { stroke: green; stroke-width: 1px; }
+	.sentio.timeline .area.series3 { fill: green; stroke: none; opacity: 0.1; }
+
+	</style>
+
+</head>
+<body>
+	<div id="chart"></div>
+	<button onclick="updateData()">Update Data</button>
+
+	<script type="text/javascript">
+		var timelineDiv = d3.select('#chart');
+		var timeline = sentio.chart.timeline()
+			.height(100)
+			.width(600)
+			.filter(true);
+
+		timeline.yExtent().overrideValue([0, undefined]);
+
+		timeline.dispatch()
+			.on('filter', function(val) { console.log(val); })
+			.on('filterstart', function(val) { console.log(val); })
+			.on('filterend', function(val) { console.log(val); });
+
+		var hwm = Date.now();
+		var data = [];
+
+		timeline.init(timelineDiv).data(data).redraw();
+		updateData();
+
+		function generateData(start, samples){
+			var toReturn = [];
+			for(var i=0; i<samples; i++){
+				toReturn.push([start + i*1000, Math.random() * 10]);
+			}
+			return toReturn;
+		}
+
+		function updateData(){
+			data.length = 0;
+			data.push({ key: 'series1', cssClass: 'series1', values: generateData(hwm - 1000*15, 15) });
+			data.push({ key: 'series2', cssClass: 'series2', values: generateData(hwm - 1000*15, 15) });
+			data.push({ key: 'series3', cssClass: 'series3', values: generateData(hwm - 1000*15, 15) });
+			timeline.redraw();
+		}
+
+	</script>
+
+</body>
+</html>
+

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Static timeline with filter. Using bins as the data structure.</title>
+
+	<link rel="stylesheet" href="../../../dist/sentio.css" />
+
+	<script src="../../../node_modules/d3/build/d3.js" charset="utf-8"></script>
+	<script src="../../../dist/sentio.js" charset="utf-8"></script>
+
+	<style>
+	</style>
+
+</head>
+<body>
+	<div id="chart"></div>
+	<button onclick="addData()">Add Data</button>
+
+	<script type="text/javascript">
+		var timelineDiv = d3.select('#chart');
+		var timeline = sentio.chart.timeline()
+			.height(100)
+			.width(600)
+			.filter(true)
+			.yExtent(sentio.model.extent({
+				overrideValue: [0, undefined],
+				getValue: function(d) { return d[1]; }
+			}));
+
+		timeline.dispatch()
+			.on('filter', function(val) { console.log(val); })
+			.on('filterstart', function(val) { console.log(val); })
+			.on('filterend', function(val) { console.log(val); });
+
+		var layout = sentio.model.bins({
+				count: 300,
+				size: 1000,
+				lwm: Date.now() - 1000*301
+			})
+			.updateBin(function(bin, d) { bin[1] += 1; })
+			.createSeed(function() { return 0; });
+
+		timeline
+			.xValue(function(d) { return d[0]; })
+			.yValue(function(d) { return d[1]; })
+			.init(timelineDiv).data([{ key: 'series1', values: layout.bins() }]).redraw();
+
+		function generateData(range, samples) {
+			var toReturn = [];
+			for(var i=0; i<samples; i++){
+				toReturn.push(range[0] + Math.random() * (range[1] - range[0]));
+			}
+			return toReturn;
+		}
+
+		function addData() {
+			layout.add(generateData([layout.lwm(), layout.hwm()], 10));
+			timeline.redraw();
+		}
+
+	</script>
+
+</body>
+</html>
+

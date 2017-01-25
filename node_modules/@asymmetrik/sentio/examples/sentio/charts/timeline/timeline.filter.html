@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Static timeline with filter. Basic Example.</title>
+
+	<link rel="stylesheet" href="../../../../dist/sentio.css" />
+
+	<script src="../../../../node_modules/d3/build/d3.js" charset="utf-8"></script>
+	<script src="../../../../dist/sentio.js" charset="utf-8"></script>
+
+	<style>
+	</style>
+
+</head>
+<body>
+	<div id="chart"></div>
+	<button onclick="updateData()">Update Data</button>
+	<button onclick="updateFilter()">Update Filter</button>
+	<button onclick="clearFilter()">Clear Filter</button>
+	<button onclick="toggleEnable()">Disable/Enable Filter</button>
+
+	<script type="text/javascript">
+
+		var timelineDiv = d3.select('#chart');
+		var timeline = sentio.chart.timeline()
+			.height(100)
+			.width(600)
+			.filter(true);
+		timeline.yExtent().overrideValue([0, undefined]);
+
+		timeline.dispatch()
+			.on('filterend', function(val) { console.log({ msg: 'filterend', val }); })
+			.on('filterstart', function(val) { console.log({ msg: 'filterstart', val }); });
+
+		var interval = 60000;
+		var binSize = 1000;
+		var hwm = Math.round(Date.now()/1000)*1000;
+
+		var model1 = sentio.model.bins({
+			count: interval/binSize,
+			size: binSize,
+			lwm: hwm - interval,
+			updateBin: function(bin, d) { bin[1] += d; },
+			createSeed: function() { return 0; },
+			getKey: function(d) { return d[0]; },
+			getValue: function(d) { return d[1]; }
+		});
+		var model2 = sentio.model.bins({
+			count: interval/binSize,
+			size: binSize,
+			lwm: hwm - interval,
+			updateBin: function(bin, d) { bin[1] += d; },
+			createSeed: function() { return 0; },
+			getKey: function(d) { return d[0]; },
+			getValue: function(d) { return d[1]; }
+		});
+
+		var data1 = generateData(hwm - interval, hwm);
+		model1.add(data1);
+		var series1 = { key: 'series1', values: model1.bins() };
+
+		var data2 = generateData(hwm - interval, hwm);
+		model2.add(data2);
+		var series2 = { key: 'series2', values: model2.bins() };
+
+		var data = [ series1, series2 ];
+
+		timeline.init(timelineDiv).data(data).redraw();
+
+		function generateData(minTs, maxTs) {
+			var data = [];
+			for(var i=0; i<(maxTs - minTs)/2000; i++) {
+				data.push([minTs + Math.random() * (maxTs - minTs), Math.random() * 10]);
+			}
+			return data;
+		}
+
+		function updateData() {
+			// set the new lwm
+			var oldHwm = Math.round(hwm/1000)*1000;
+			hwm = Math.round(Date.now()/1000)*1000;
+
+			model1.clear().lwm(hwm - interval);
+			data1 = data1.concat(generateData(oldHwm, hwm));
+			model1.add(data1);
+
+			model2.clear().lwm(hwm - interval);
+			data2 = data2.concat(generateData(oldHwm, hwm));
+			model2.add(data2);
+
+			timeline.xExtent().overrideValue([Date.now() - interval, Date.now()]);
+			timeline.redraw();
+		}
+
+		function updateFilter() {
+			var lf = hwm - Math.random() * interval;
+			var hf = lf + Math.random() * 20000;
+			var newFilter = [lf, hf];
+			console.log({m: 'Applying filter', filter: newFilter});
+			timeline.setFilter(newFilter);
+			timeline.redraw();
+		}
+
+		function clearFilter() {
+			timeline.setFilter(null);
+			timeline.redraw();
+		}
+
+		function toggleEnable() {
+			timeline.filter(!timeline.filter()).redraw();
+		}
+
+		function resize() {
+			var newWidth = document.getElementById('chart').clientWidth;
+			timeline.width(newWidth).resize().redraw();
+		}
+		window.addEventListener('resize', resize, true);
+		resize();
+
+	</script>
+
+</body>
+</html>
+

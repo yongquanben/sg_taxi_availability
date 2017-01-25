@@ -1,0 +1,36 @@
+//=======================================
+//	Timeline Chart
+//=======================================
+
+.sentio.timeline .line {
+	fill: none;
+	stroke: #000;
+	stroke-width: 1.5px;
+}
+
+.sentio.timeline .marker line {
+	stroke: #f00;
+	stroke-width: 1;
+}
+
+.sentio.timeline .marker:hover {
+	cursor: pointer;
+}
+
+.sentio.timeline .area {
+	fill: #eee;
+	stroke: none;
+}
+
+.sentio.timeline .axis path,
+.sentio.timeline .axis line {
+	fill: none;
+	shape-rendering: crispEdges;
+	stroke: #000;
+}
+
+.sentio.timeline .brush .extent {
+	fill-opacity: .125;
+	shape-rendering: crispEdges;
+	stroke: #fff;
+}

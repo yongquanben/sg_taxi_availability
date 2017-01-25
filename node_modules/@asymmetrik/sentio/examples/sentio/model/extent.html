@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Extent example.</title>
+
+	<link rel="stylesheet" href="../../../dist/sentio.css" />
+
+	<script src="../../../node_modules/d3/build/d3.js" charset="utf-8"></script>
+	<script src="../../../dist/sentio.js" charset="utf-8"></script>
+
+	<style>
+	</style>
+
+</head>
+<body>
+	<button onClick="run()">Run</button><br/>
+
+	<script type="text/javascript">
+		function run() {
+			var extentController = sentio.model.extent({
+				defaultValue: [0, 1]
+			});
+			console.log(extentController.getExtent([1, 2, 5, 10, -10]));
+			console.log(extentController.getExtent([1, 2, 3, 4, 5, 6, 7]));
+		}
+
+	</script>
+
+</body>
+</html>
+

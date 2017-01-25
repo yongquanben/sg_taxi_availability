@@ -1,0 +1,22 @@
+//=======================================
+//	Matrix Chart
+//=======================================
+
+.sentio.matrix .axis.x line {
+	fill: none;
+	shape-rendering: crispEdges;
+	stroke: #000;
+}
+
+.sentio.matrix .axis.x path {
+	fill: none;
+	stroke: none;
+}
+
+.sentio.matrix .series.label {
+	fill: #000;
+}
+
+.sentio.matrix .series.label.active {
+	fill: #f00;
+}

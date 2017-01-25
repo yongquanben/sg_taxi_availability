@@ -1,0 +1,77 @@
+/*! @asymmetrik/sentio-3.0.2 - Copyright Asymmetrik, Ltd. 2007-2017 - All Rights Reserved.*/.sentio.donut .legend {
+  font: 12px sans-serif; }
+
+.sentio.donut .arc {
+  stroke: none; }
+
+.sentio.donut .arc.active,
+.sentio.donut .legend .entry.active rect {
+  stroke: #000;
+  stroke-width: 1.5px; }
+
+.sentio.matrix .axis.x line {
+  fill: none;
+  shape-rendering: crispEdges;
+  stroke: #000; }
+
+.sentio.matrix .axis.x path {
+  fill: none;
+  stroke: none; }
+
+.sentio.matrix .series.label {
+  fill: #000; }
+
+.sentio.matrix .series.label.active {
+  fill: #f00; }
+
+svg {
+  font: 10px sans-serif; }
+
+.sentio.timeline .line {
+  fill: none;
+  stroke: #000;
+  stroke-width: 1.5px; }
+
+.sentio.timeline .marker line {
+  stroke: #f00;
+  stroke-width: 1; }
+
+.sentio.timeline .marker:hover {
+  cursor: pointer; }
+
+.sentio.timeline .area {
+  fill: #eee;
+  stroke: none; }
+
+.sentio.timeline .axis path,
+.sentio.timeline .axis line {
+  fill: none;
+  shape-rendering: crispEdges;
+  stroke: #000; }
+
+.sentio.timeline .brush .extent {
+  fill-opacity: .125;
+  shape-rendering: crispEdges;
+  stroke: #fff; }
+
+.sentio.bars-vertical {
+  position: relative; }
+
+.sentio.bars-vertical .bar {
+  background-color: #ddd;
+  color: #000;
+  font: 12px sans-serif;
+  overflow: visible;
+  position: absolute;
+  white-space: nowrap; }
+
+.sentio.bars-vertical .bar:hover {
+  background-color: #bbb; }
+
+.sentio.bars-vertical .bar-label {
+  display: inline-block;
+  margin: 5px;
+  overflow: hidden;
+  text-overflow: ellipsis; }
+
+/*# sourceMappingURL=sentio.css.map */

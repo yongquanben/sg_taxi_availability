@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Realtime Bins Controller Example.</title>
+
+	<link rel="stylesheet" href="../../../dist/sentio.css" />
+
+	<script src="../../../node_modules/d3/build/d3.js" charset="utf-8"></script>
+	<script src="../../../dist/sentio.js" charset="utf-8"></script>
+
+	<style>
+	.red { color: red; }
+	.black { color: black; }
+	</style>
+
+</head>
+<body>
+	<input type="text" id="countInput" value="5" /><button onClick="doSetCount()">Set Bin Count</button><br/>
+	<input type="text" id="sizeInput" value="10000" /><button onClick="doSetSize()">Set Bin Size</button><br/>
+	<input type="text" id="delayInput" value="0" /><button onClick="doSetDelay()">Set Delay</button><br/>
+	<button onClick="doAddValue()">Add Value at Date.Now()</button><br/>
+	<button onClick="doPlay()">Play</button><br/>
+	<button onClick="doPause()">Pause</button><br/>
+	<button onClick="doClear()">Clear Data</button><br/>
+	<br/>
+
+	<div id="chart"></div>
+
+	<script type="text/javascript">
+		var controller = sentio.controller.realtimeBins({
+			binCount: 5,		// 5 bins
+			binSize: 2000		// 2 seconds per bin
+		});
+
+		// draw divs for each bin
+		function redraw() {
+			var chart = d3.select('#chart');
+
+			var join = chart.selectAll('div').data(controller.bins(), function(d) { return d[0]; } );
+			var enter = join.enter().append('div').attr('background-color', 'light-gray');
+
+			enter.merge(join).text(function(d) { return d[0] + " : " + d[1].length; } )
+				.attr('class', function(d) { return (d[0] + controller.binSize() < Date.now())? 'black': 'red'; } )
+
+			join.exit().remove();
+		}
+
+		function doAddValue() {
+			var now = Date.now();
+			controller.add([now]);
+			redraw();
+			console.log('Added 1 at ' + now);
+		}
+
+		function doSetCount() {
+			var value = document.getElementById('countInput').value;
+			controller.binCount(value);
+		}
+
+		function doSetSize() {
+			var value = document.getElementById('sizeInput').value;
+			controller.binSize(value);
+		}
+
+		function doSetDelay() {
+			var value = document.getElementById('lwmInput').value;
+			controller.delay(value);
+		}
+
+		function doPlay() {
+			controller.start();
+			redraw();
+		}
+
+		function doPause() {
+			controller.stop();
+			redraw();
+		}
+
+		function doClear() {
+			controller.clear();
+		}
+
+		function update() {
+			redraw();
+			window.setTimeout(update, 50);
+		}
+
+		update();
+
+	</script>
+
+</body>
+</html>
+

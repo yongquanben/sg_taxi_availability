@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Bins layout example.</title>
+
+	<link rel="stylesheet" href="../../../dist/sentio.css" />
+
+	<script src="../../../node_modules/d3/build/d3.js" charset="utf-8"></script>
+	<script src="../../../dist/sentio.js" charset="utf-8"></script>
+
+	<style>
+	</style>
+
+</head>
+<body>
+	<input type="text" id="countInput" value="5" /><button onClick="doSetCount()">Set Bin Count</button><br/>
+	<input type="text" id="sizeInput" value="10" /><button onClick="doSetSize()">Set Bin Size</button><br/>
+	<input type="text" id="lwmInput" value="100" /><button onClick="doSetLwm()">Low Watermark</button><br/>
+	<input type="text" id="valueInput"/><button onClick="doAddValue()">Add Value</button><br/>
+	<button onClick="doClear()">Clear</button><br/>
+	<br/>
+
+	<div id="chart"></div>
+
+	<script type="text/javascript">
+		var layout = sentio.model.bins({
+			count: 5,
+			size: 10,
+			lwm: 100
+		});
+
+		// draw divs for each bin
+		function redraw() {
+			var chart = d3.select('#chart');
+			var join = chart.selectAll('div').data(layout.bins(), function(d) { return d[0]; } );
+			join.enter().append('div').attr('background-color', 'light-gray');
+			join.text(function(d) { return d[0] + " : " + d[1].length; } );
+			join.exit().remove();
+		}
+
+		function doAddValue() {
+			var value = document.getElementById('valueInput').value;
+			layout.add([value]);
+
+			redraw();
+		}
+
+		function doSetCount() {
+			var value = document.getElementById('countInput').value;
+			layout.count(value);
+
+			redraw();
+		}
+
+		function doSetSize() {
+			var value = document.getElementById('sizeInput').value;
+			layout.size(value);
+
+			redraw();
+		}
+
+		function doSetLwm() {
+			var value = document.getElementById('lwmInput').value;
+			layout.lwm(value);
+
+			redraw();
+		}
+
+		function doClear() {
+			layout.clear();
+
+			redraw();
+		}
+
+		redraw();
+
+	</script>
+
+</body>
+</html>
+

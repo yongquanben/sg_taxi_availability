@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Matrix. Basic Example.</title>
+
+	<link rel="stylesheet" href="../../../dist/sentio.css" />
+
+	<script src="../../../node_modules/d3/build/d3.js" charset="utf-8"></script>
+	<script src="../../../dist/sentio.js" charset="utf-8"></script>
+
+	<style>
+	</style>
+
+</head>
+<body>
+
+	<h1>Matrix Chart Example</h1>
+	<p>Standalone D3 Matrix Chart Example</p>
+
+	<div id="chart"></div>
+
+	<button onclick="updateData()">Update Data</button>
+
+	<script>
+		var chartDiv = d3.select('#chart');
+		var chart = sentio.chart.matrix()
+			.cellSize(32)
+			.cellMargin(2);
+
+		chart.dispatch()
+			.on('cellMouseover', function(d, i) { console.log({ type: 'cellMouseover', event: d, index: i, context: this }); })
+			.on('rowMouseover', function(d, i) { console.log({ type: 'rowMouseover', event: d, index: i, context: this }); });
+
+		chart.init(chartDiv);
+		updateData();
+
+		function updateData(){
+			var data = [];
+
+			// Build an hourly series for each day of the week
+			['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].forEach(function(d) {
+				var row = { key: d, label: d, values: [] };
+				for(var i=0; i<24; i++) {
+					row.values.push({ key: i, value: Math.random() * 5 });
+				}
+				data.push(row);
+			});
+
+			chart.data(data).redraw();
+		}
+
+	</script>
+</body>
+</html>

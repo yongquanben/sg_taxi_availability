@@ -1,0 +1,219 @@
+body {
+	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	padding: 0;
+	margin: 0;
+	position: relative;
+}
+
+#indicator {
+	position: absolute;
+	top: 5px;
+	right: 5px;
+	z-index: 1200;
+	color: #000;
+	background-color: #fff;
+	border-radius: 3px;
+	padding: 5px 10px;
+	font-size: 13px;
+	opacity: 0.8;
+}
+
+#separator {
+	position: absolute;
+	bottom: 24px;
+	left: 375px;
+	z-index: 1200;
+	width: 3px;
+	height: 230px;
+	background-color: #fff;
+}
+
+#mapid {
+	height: 100vh;
+	width: 100vw;
+	min-width: 960px;
+}
+
+.hexbin-hexagon {
+	pointer-events: auto !important;
+}
+
+.weekly-statistics-chart {
+	position: absolute;
+	bottom: 20px;
+	left: 400px;
+	z-index: 1200;
+}
+
+.weekly-statistics-chart-title {
+	position: absolute;
+	bottom: 27px;
+	left: 400px;
+	z-index: 1200;
+	font-size: 11px;
+	color: #777;
+}
+
+.availability-chart {
+	position: absolute;
+	bottom: 20px;
+	left: 0;
+	z-index: 1200;
+}
+
+.availability-chart-title {
+	position: absolute;
+	bottom: 27px;
+	left: 50px;
+	z-index: 1200;
+	font-size: 11px;
+	color: #777;
+}
+
+.availability-chart svg g {
+	stroke: #fff;
+  	stroke-width: 1.5px;
+}
+
+div.tooltip {
+  position: absolute;
+  padding: 5px 10px;
+  background: transparent;
+  border: 2px solid #fff;
+  border-radius: 2px;
+  pointer-events: none;
+  z-index: 1200;
+  left: 0;
+  top: 0;
+  color: #fff;
+  background-color: rgba(0, 0, 0, 0.6);
+}
+
+div.tooltip-title {
+	font-size: 14px;
+	font-weight: bold;
+}
+
+div.tooltip-content {
+	font-size: 30px;
+	font-weight: bold;
+}
+
+.play-button, .pause-button, .test-button {
+	font-size: 12px;
+	position: absolute;
+	bottom: 28px;
+	left: 305px;
+	z-index: 1200;
+	border: 1px solid #fff;
+	border-radius: 15px;
+	height: 20px;
+	padding: 0 15px;
+	margin: 0;
+	background-color: transparent;
+	color: #fff;
+	cursor: pointer;
+	display: block;
+	font-size: 12px;
+}
+
+.test-button {
+	left: 220px;
+}
+
+.play-button i, .pause-button i {
+	line-height: 20px;
+	/*padding-right: 5px;*/
+	font-size: 10px;
+}
+
+.button-hide {
+	display: none !important;
+}
+
+.taxi-availability-bar {
+	fill: #fff;
+	stroke-width: 0;
+}
+
+.availability-chart-pointer {
+	fill: none;
+}
+
+.displayed-availability-title {
+	font-size: 20px;
+	font-weight: bold;
+	fill: #fff;
+}
+
+.displayed-availability-datetime {
+	font-size: 14px;
+	fill: #fff;
+}
+
+.displayed-availability-count {
+	font-size: 40px;
+	font-weight: bold;
+	fill: #fff;
+}
+
+.displayed-availability-count-object {
+	font-size: 18px;
+	font-weight: bold;
+	fill: #fff;
+}
+
+.peak-timing-title, .offpeak-timing-title {
+	font-size: 14px;
+	fill: #fff;
+	font-weight: bold;
+}
+
+.peak-timing-title-small, .offpeak-timing-title-small {
+	font-size: 11px;
+	fill: #fff;
+}
+
+.highest-availability-count, .lowest-availability-count, .peak-timing-count, .offpeak-timing-count {
+	font-size: 22px;
+	font-weight: bold;
+	fill: #fff;
+}
+
+.highest-availability-date, .lowest-availability-date {
+	font-size: 13px;
+	fill: #fff;
+}
+
+.crunching-statistics {
+	fill: #777 !important;
+	font-weight: normal !important;
+	font-size: 13px !important;
+}
+
+.bar-line {
+	stroke: #fff;
+  	stroke-width: 1.5px;
+}
+
+.horizontal-bar-value {
+	fill: #fff;
+	font-size: 11px;
+	text-anchor: middle;
+}
+
+.horizontal-bar-circle {
+	fill: #333;
+}
+
+.highest-availability-icon, .lowest-availability-icon {
+	font-family: FontAwesome;
+	fill: #fff;
+	font-size: 32px;
+}
+
+.highest-availability-circle, .lowest-availability-circle {
+	fill: none;
+	stroke: #fff;
+	stroke-width: 1.5px;
+}
