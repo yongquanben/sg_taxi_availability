@@ -1,5 +1,6 @@
 # Singapore Taxi Availability (Map Visulization)
 A data visualization project to show the taxi availability in Singapore.
+
 Take a peak at recent and past 2 weeks taxi availability statistics.
 
 [Demo](https://yongquanben.github.io/sg_taxi_availability/)
