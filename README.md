@@ -1,5 +1,5 @@
-# sg_taxi_availability
-A data visualization project to show the taxi availability in Singapore
+# Singapore Taxi Availability
+A data visualization project to show the taxi availability in Singapore.
 [Demo](https://yongquanben.github.io/sg_taxi_availability/)
 
 ## Built With
