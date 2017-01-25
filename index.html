@@ -21,7 +21,14 @@
   <div id="indicator">Best Viewed in 1280 x 768 or higher</div>
   <div id="mapid"></div>
   <div class="availability-chart"></div>
-  <div class="availability-chart-title">Taxi availability in the last 100 minutes<br />(Play to see map density changes every 5 mins)</div>
+  <select id="availability-select">
+    <option value="5-minutes">Every 5 Mins</option>
+    <option value="10-minutes">Every 10 Mins</option>
+    <option value="30-minutes">Every 30 Mins</option>
+    <option value="60-minutes">Every 1 Hour</option>
+  </select>
+
+  <div class="availability-chart-title">Taxi availability in the last 100 mins<br />(Play to see map density changes every 5 mins)</div>
   <div class="weekly-statistics-chart"></div>
   <div class="weekly-statistics-chart-title">Taxi availability in the last 2 weeks<br />(Hourly data is used for better accuracy)</div>
   <div class="play-button">

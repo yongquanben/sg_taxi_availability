@@ -25,15 +25,12 @@ d3.tip = function() {
     svg = getSVGNode(vis)
     point = svg.createSVGPoint()
     document.body.appendChild(node)
-    console.log(svg);
-    console.log('here112');
   }
 
   // Public - show the tooltip on the screen
   //
   // Returns a tip
   tip.show = function() {
-    console.log('here111');
     var args = Array.prototype.slice.call(arguments)
     if(args[args.length - 1] instanceof SVGElement) target = args.pop()
 

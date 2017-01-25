@@ -34,7 +34,10 @@ $(function() {
         });
         
         // take 1 step at a time, setup last 2 weeks after 100 minutes statistics is completed
-        setupLast14DaysStatistics.call(weeklyStatisticsChartSvg);
+        if (isLast14DaysDataFetched == false) {
+          setupLast14DaysStatistics.call(weeklyStatisticsChartSvg);
+          isLast14DaysDataFetched = true;
+        }
       }
     });
   }
@@ -596,85 +599,7 @@ $(function() {
         .ease(d3.easeLinear)
     }
 
-    // this.select('.peak-timing-count-1')
-    //   .classed('crunching-statistics', false)
-    //   .transition()
-    //   .duration(500)
-    //   .on("start", function repeat() {
-    //       d3.active(this)
-    //         .tween("text", function() {
-    //       var that = d3.select(this);
-    //       var flattenArray = [];
-    //       hourlyPeakTaxiAvailabilityCount1.forEach(function(array) {
-    //         flattenArray = flattenArray.concat(array);
-    //       });
-    //       var sum = flattenArray.reduce(function(a, b) { return a + b; });
-    //       var avg = d3.interpolateNumber(0, Math.round(sum / flattenArray.length));
-    //       var minRange = d3.interpolateNumber(0, Math.min.apply(Math, flattenArray));
-    //       var maxRange = d3.interpolateNumber(0, Math.max.apply(Math, flattenArray));
-    //       return function(t) { that.text("Average " + format(avg(t)) + " (Min " + format(minRange(t)) + " - Max " + format(maxRange(t)) + ")"); };
-    //     })
-    //   });
-
-    this.select('.peak-timing-count-2')
-      .classed('crunching-statistics', false)
-      .transition()
-      .duration(500)
-      .on("start", function repeat() {
-          d3.active(this)
-            .tween("text", function() {
-          var that = d3.select(this);
-          var flattenArray = [];
-          hourlyPeakTaxiAvailabilityCount2.forEach(function(array) {
-            flattenArray = flattenArray.concat(array);
-          });
-          var sum = flattenArray.reduce(function(a, b) { return a + b; });
-          var avg = d3.interpolateNumber(0, Math.round(sum / flattenArray.length));
-          var minRange = d3.interpolateNumber(0, Math.min.apply(Math, flattenArray));
-          var maxRange = d3.interpolateNumber(0, Math.max.apply(Math, flattenArray));
-          return function(t) { that.text("Average " + format(avg(t)) + " (Min " + format(minRange(t)) + " - Max " + format(maxRange(t)) + ")"); };
-        })
-      });
-
-    this.select('.offpeak-timing-count-1')
-      .classed('crunching-statistics', false)
-      .transition()
-      .duration(500)
-      .on("start", function repeat() {
-          d3.active(this)
-            .tween("text", function() {
-          var that = d3.select(this);
-          var flattenArray = [];
-          hourlyOffPeakTaxiAvailabilityCount1.forEach(function(array) {
-            flattenArray = flattenArray.concat(array);
-          });
-          var sum = flattenArray.reduce(function(a, b) { return a + b; });
-          var avg = d3.interpolateNumber(0, Math.round(sum / flattenArray.length));
-          var minRange = d3.interpolateNumber(0, Math.min.apply(Math, flattenArray));
-          var maxRange = d3.interpolateNumber(0, Math.max.apply(Math, flattenArray));
-          return function(t) { that.text("Average " + format(avg(t)) + " (Min " + format(minRange(t)) + " - Max " + format(maxRange(t)) + ")"); };
-        })
-      });
-
-    this.select('.offpeak-timing-count-2')
-      .classed('crunching-statistics', false)
-      .transition()
-      .duration(500)
-      .on("start", function repeat() {
-          d3.active(this)
-            .tween("text", function() {
-          var that = d3.select(this);
-          var flattenArray = [];
-          hourlyOffPeakTaxiAvailabilityCount2.forEach(function(array) {
-            flattenArray = flattenArray.concat(array);
-          });
-          var sum = flattenArray.reduce(function(a, b) { return a + b; });
-          var avg = d3.interpolateNumber(0, Math.round(sum / flattenArray.length));
-          var minRange = d3.interpolateNumber(0, Math.min.apply(Math, flattenArray));
-          var maxRange = d3.interpolateNumber(0, Math.max.apply(Math, flattenArray));
-          return function(t) { that.text("Average " + format(avg(t)) + " (Min " + format(minRange(t)) + " - Max " + format(maxRange(t)) + ")"); };
-        })
-      });
+    $('#availability-select').prop('disabled', false);
   }
 
   goToLast100MinutesChartBar = function(index, datetimeData, taxiAvailabilityCountData, taxiCoordinatesData) {
@@ -713,6 +638,43 @@ $(function() {
       });
   }
   
+  setupApiDateTime = function(number, unit) {
+    taxiAvailabilityDateTime = [];
+    taxiAvailabilityCountHash = {};
+    taxiAvailabilityCount = [];
+    taxiCoordinatesHash = {};
+    taxiCoordinates = [];
+    fireCount = 0;
+    dataSetCount = 0;
+    currentIndexPointer = 0;
+    
+    $(".availability-chart svg").empty();
+    if (number == 60 && unit == 'minutes')
+      $('.availability-chart-title').html('Taxi availability in the last 20 hours<br />(Play to see map density changes every hour)');
+    else if (number == 30 && unit == 'minutes')
+      $('.availability-chart-title').html('Taxi availability in the last 10 hours<br />(Play to see map density changes every 20 mins)');
+    else if (number == 10 && unit == 'minutes')
+      $('.availability-chart-title').html('Taxi availability in the last 200 mins<br />(Play to see map density changes every 10 mins)');
+    else if (number == 5 && unit == 'minutes')
+      $('.availability-chart-title').html('Taxi availability in the last 100 mins<br />(Play to see map density changes every 5 mins)');
+
+    // ensure that data is drawn based on last 20 intervals of 5 mins
+    var now = Date.now();
+    for (i=(initiateFetchCount-1); i >= 0; i--) {
+      var dateTime = moment(now).startOf(unit);
+      minute = parseInt(dateTime.format('m'));
+      toSubstract = minute % 5;
+      // data might not be ready, take further step back
+      // e.g. 10.47AM, take 10.40AM instead
+      if (toSubstract < 3)
+        dateTime.subtract(toSubstract + 5 + ((i) * number), unit);
+      else
+        dateTime.subtract(toSubstract + ((i) * number), unit);
+
+      taxiAvailabilityDateTime.push(dateTime);
+      fetchTaxiDataLast100Minutes(dateTime);
+    }
+  }
 
   var apiKey = "B8zv9vTjZjAoGWhUA6Uv2457LKJjfKQd";
   var apiUrl = "https://api.data.gov.sg/v1/transport/taxi-availability";
@@ -741,6 +703,8 @@ $(function() {
   var lowestTaxiAvailability = null;
   var peakTaxiAvailability = null;
   var nonPeakTaxiAvailability = null;
+
+  var isLast14DaysDataFetched = false;
 
   var i;
 
@@ -814,23 +778,10 @@ $(function() {
   var weeklyStatisticsChartSvg = d3.select(".weekly-statistics-chart").append("svg")
     .attr('width', 850)
     .attr('height', 245);
-
-  // ensure that data is drawn based on last 20 intervals of 5 mins
-  var now = Date.now();
-  for (i=(initiateFetchCount-1); i >= 0; i--) {
-    var dateTime = moment(now).startOf('minute');
-    minute = parseInt(dateTime.format('m'));
-    toSubstract = minute % 5;
-    // data might not be ready, take further step back
-    // e.g. 10.47AM, take 10.40AM instead
-    if (toSubstract < 3)
-      dateTime.subtract(toSubstract + 5 + ((i) * 5), 'minutes');
-    else
-      dateTime.subtract(toSubstract + ((i) * 5), 'minutes');
-
-    taxiAvailabilityDateTime.push(dateTime);
-    fetchTaxiDataLast100Minutes(dateTime);
-  }
+  
+  $('#availability-select').prop('disabled', 'disabled');
+  var selectValue = $('#availability-select').val().split('-');
+  setupApiDateTime(parseInt(selectValue[0]), selectValue[1]);
   
   // tooltip
   var div = d3.select("body").append("div")
@@ -843,7 +794,13 @@ $(function() {
 
   var div_content = div.append("div")
     .attr("class", "tooltip-content");
-  
+
+
+  $('#availability-select').on('change', function() {
+    $('.pause-button').trigger('click');
+    var selectValue = $('#availability-select').val().split('-');
+    setupApiDateTime(parseInt(selectValue[0]), selectValue[1]);
+  });
 
   // play and pause
   $('.play-button').on('click', function() {

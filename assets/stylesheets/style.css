@@ -54,6 +54,33 @@ body {
 	color: #777;
 }
 
+#availability-select {
+	position: absolute;
+	bottom: 198px;
+	left: 230px;
+	z-index: 1200;
+	background: url(http://i62.tinypic.com/15xvbd5.png) no-repeat 92% 50%;
+    height: 29px;
+    overflow: hidden;
+    width: 120px;
+    color: #fff;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    padding: 0 10px;
+}
+
+#availability-select:focus {
+    outline:none;
+}
+
+#availability-select:disabled {
+    border-color: #777;
+    color: #777;
+}
+
 .availability-chart {
 	position: absolute;
 	bottom: 20px;
@@ -198,7 +225,7 @@ div.tooltip-content {
 
 .horizontal-bar-value {
 	fill: #fff;
-	font-size: 11px;
+	font-size: 10px;
 	text-anchor: middle;
 }
 
