@@ -164,54 +164,66 @@ $(function() {
       hourlyTaxiAvailabilityDateTime.push(dateTime);
       fetchTaxiDataLast14Days(dateTime);
     }
+
+    this.append('text')
+      .classed('peak-timing-title', true)
+      .attr('x', 455)
+      .attr('y', 25)
+      .text('Highest Availability');
     
     this.append('text')
       .classed('highest-availability-icon', true)
-      .attr('x', 440)
-      .attr('y', 45)
+      .attr('x', 460)
+      .attr('y', 65)
       .text("\uf102");
 
     this.append('circle')
       .classed('highest-availability-circle', true)
-      .attr('cx', 450)
-      .attr('cy', 35)
+      .attr('cx', 470)
+      .attr('cy', 55)
       .attr('r', 16)
 
     this.append('text')
+      .classed('peak-timing-title', true)
+      .attr('x', 455)
+      .attr('y', 125)
+      .text('Lowest Availability');
+
+    this.append('text')
       .classed('lowest-availability-icon', true)
-      .attr('x', 640)
-      .attr('y', 48)
+      .attr('x', 460)
+      .attr('y', 168)
       .text("\uf103");
 
     this.append('circle')
       .classed('lowest-availability-circle', true)
-      .attr('cx', 650)
-      .attr('cy', 35)
+      .attr('cx', 470)
+      .attr('cy', 155)
       .attr('r', 16)
 
     this.append('text')
       .classed('highest-availability-date', true)
       .classed('crunching-statistics', true)
-      .attr('x', 475)
-      .attr('y', 30)
+      .attr('x', 495)
+      .attr('y', 50)
       .text('Crunching Statistics...');
 
     this.append('text')
       .classed('highest-availability-count', true)
-      .attr('x', 475)
-      .attr('y', 54)
+      .attr('x', 495)
+      .attr('y', 74)
 
     this.append('text')
       .classed('lowest-availability-date', true)
       .classed('crunching-statistics', true)
-      .attr('x', 675)
-      .attr('y', 30)
+      .attr('x', 495)
+      .attr('y', 150)
       .text('Crunching Statistics...');
 
     this.append('text')
       .classed('lowest-availability-count', true)
-      .attr('x', 675)
-      .attr('y', 54)
+      .attr('x', 495)
+      .attr('y', 174)
 
     this.append('text')
       .classed('peak-timing-title', true)
@@ -1051,7 +1063,7 @@ $(function() {
 
     for (var i=0; i < breakdownStats.length; i++) {
       var flattenOverallArray = [];
-      
+
       breakdownStatsSvg.append('text')
         .classed('breakdown-stats-header', true)
         .attr('x', 40)
