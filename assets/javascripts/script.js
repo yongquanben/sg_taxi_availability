@@ -1,5 +1,5 @@
 $(function() {
-  fetchTaxiDataLast100Minutes = function(current_datetime) {
+  fetchTaxiAvailabilityData = function(current_datetime) {
     var url = apiUrl + '?date_time=' + current_datetime.format('YYYY-MM-DDTHH:mm:ss');
     $.ajax({
       url: url,
@@ -27,7 +27,7 @@ $(function() {
         taxiCoordinatesHash = {};
 
         hexLayer.data(taxiCoordinates[currentIndexPointer]);
-        plotLast100MinutesChart.call(last100MinutesChartSvg, { 
+        plotTaxiAvailabilityChart.call(taxiAvailabilityChartSvg, { 
           datetimeData: taxiAvailabilityDateTime, 
           taxiAvailabilityCountData: taxiAvailabilityCount,
           taxiCoordinatesData: taxiCoordinates
@@ -55,7 +55,7 @@ $(function() {
           var dateTimeHourly = dateTime.format('D MMM YYYY hA');
           last14DaysHourlyTaxiAvailabilityCountHash[dateTimeHourly] = data.features[0].properties.taxi_count;
 
-          var hourly = dateTime.format('hA');
+          var hourly = dateTime.format('hA ddd');
           if (hourlyTaxiAvailabilityCountHash[hourly] == null) { hourlyTaxiAvailabilityCountHash[hourly] = []; }
           hourlyTaxiAvailabilityCountHash[hourly].push(data.features[0].properties.taxi_count);
         }
@@ -72,13 +72,13 @@ $(function() {
     });
   }
   
-  plotLast100MinutesChart = function(params) {
+  plotTaxiAvailabilityChart = function(params) {
     var margin = {top: 150, right: 20, bottom: 50, left: 0}
     var width = this.attr("width") - margin.left - margin.right;
     var height = this.attr("height") - margin.top - margin.bottom;
     var g = this.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-    var yLast100Minute = d3.scaleLinear()
+    var yTaxiAvailability = d3.scaleLinear()
       .domain([0, Math.max.apply(Math, params.taxiAvailabilityCountData)])
       .range([height, 0]);
 
@@ -95,30 +95,30 @@ $(function() {
       .attr('x', function(d, i) { return ((12 + 3) * i)+50; })
       .attr('rx', 2)
       .attr('ry', 2)
-      .attr('y', yLast100Minute(0))
+      .attr('y', yTaxiAvailability(0))
       .attr("width", 12)
       .attr('opacity', 0.8)
       .on("click", function(d, i) {
-        goToLast100MinutesChartBar(i, params.datetimeData, params.taxiAvailabilityCountData, params.taxiCoordinatesData);
+        goToTaxiAvailabilityChartBar(i, params.datetimeData, params.taxiAvailabilityCountData, params.taxiCoordinatesData);
       })
       .transition()
       .delay(function(d,i){ return 50*i; })
       .duration(function(d,i){ return 150; })
-      .attr('y', function(d, i) { return yLast100Minute(d); })
-      .attr('height', function(d, i) { return height - yLast100Minute(d); })
+      .attr('y', function(d, i) { return yTaxiAvailability(d); })
+      .attr('height', function(d, i) { return height - yTaxiAvailability(d); })
       .style('fill', function(d) { return colorScale(d); })
       .ease(d3.easeLinear)
 
-    last100MinutesChartPointerG = this.append('g')
+    taxiAvailabilityChartPointerG = this.append('g')
       .classed('availability-chart-pointer', true)
 
-    last100MinutesChartPointerG
+    taxiAvailabilityChartPointerG
       .append('polygon')
       .attr('fill', 'white')
       .attr('stroke-width', 0)
       .attr('points', "03,09 09,03 15,09")
 
-    last100MinutesChartPointerG
+    taxiAvailabilityChartPointerG
       .attr('opacity', 0)
       .attr("transform", "translate(" + ((15 * (params.taxiAvailabilityCountData.length - 1)) + 47) + "," + (height + 150) + ")")
       .transition()
@@ -136,7 +136,7 @@ $(function() {
       .classed('displayed-availability-datetime', true)
       .attr('x', 50)
       .attr('y', 81)
-      .text(params.datetimeData[params.datetimeData.length - 1].format('D MMM YYYY H:mmA'));
+      .text(params.datetimeData[params.datetimeData.length - 1].format('D MMM YYYY h:mmA'));
 
     this.append('text')
       .classed('displayed-availability-count', true)
@@ -356,7 +356,8 @@ $(function() {
     var hourlyOffPeakTaxiAvailabilityCount2 = [];
     
     Object.keys(params.hourlyTaxiAvailabilityCountData).map(function(key, index) {
-      switch(key) {
+      time = key.split(' ')[0];
+      switch(time) {
         case '6AM': case '7AM': case '8AM': case '9AM':
           hourlyPeakTaxiAvailabilityCount1.push(params.hourlyTaxiAvailabilityCountData[key]);
           break;
@@ -600,9 +601,14 @@ $(function() {
     }
 
     $('#availability-select').prop('disabled', false);
+
+    $('.show-more-peak-1').fadeIn();
+    $('.show-more-peak-2').fadeIn();
+    $('.show-more-offpeak-1').fadeIn();
+    $('.show-more-offpeak-2').fadeIn();
   }
 
-  goToLast100MinutesChartBar = function(index, datetimeData, taxiAvailabilityCountData, taxiCoordinatesData) {
+  goToTaxiAvailabilityChartBar = function(index, datetimeData, taxiAvailabilityCountData, taxiCoordinatesData) {
     var new_index = index;
     var prev_index = currentIndexPointer;
     var height = 90;
@@ -611,12 +617,12 @@ $(function() {
 
     hexLayer.data(taxiCoordinatesData[new_index]);
 
-    last100MinutesChartSvg.select('.availability-chart-pointer')
+    taxiAvailabilityChartSvg.select('.availability-chart-pointer')
       .transition()
       .attr("transform", "translate(" + ((15 * index) + 47) + "," + (height + 160) + ")")
       .duration(300);
 
-    last100MinutesChartSvg.select('.displayed-availability-datetime')
+    taxiAvailabilityChartSvg.select('.displayed-availability-datetime')
           .attr('x', 50)
           .attr('y', 81)
           .attr('opacity', 0)
@@ -625,7 +631,7 @@ $(function() {
       .attr('opacity', 1)
           .text(datetimeData[new_index].format('D MMM YYYY H:mmA'));
 
-    last100MinutesChartSvg.select('.displayed-availability-count')
+    taxiAvailabilityChartSvg.select('.displayed-availability-count')
       .transition()
       .duration(500)
       .on("start", function repeat() {
@@ -672,7 +678,7 @@ $(function() {
         dateTime.subtract(toSubstract + ((i) * number), unit);
 
       taxiAvailabilityDateTime.push(dateTime);
-      fetchTaxiDataLast100Minutes(dateTime);
+      fetchTaxiAvailabilityData(dateTime);
     }
   }
 
@@ -772,7 +778,7 @@ $(function() {
   var hexLayer = L.hexbinLayer(options).addTo(mymap);
 
   // --- CHART SETUP ---
-  var last100MinutesChartSvg = d3.select(".availability-chart").append("svg")
+  var taxiAvailabilityChartSvg = d3.select(".availability-chart").append("svg")
     .attr('width', 400)
     .attr('height', 300);
   var weeklyStatisticsChartSvg = d3.select(".weekly-statistics-chart").append("svg")
@@ -826,7 +832,7 @@ $(function() {
         clearInterval(interval);
       }
       
-      goToLast100MinutesChartBar(currentPlayIndexPointer, taxiAvailabilityDateTime, taxiAvailabilityCount, taxiCoordinates);
+      goToTaxiAvailabilityChartBar(currentPlayIndexPointer, taxiAvailabilityDateTime, taxiAvailabilityCount, taxiCoordinates);
 
       isPlayStart = true;
     }, 1500);
@@ -839,4 +845,549 @@ $(function() {
 
     clearInterval(interval);
   });
+
+  $('.show-more-peak-1').on('click', function() {
+    $('#breakdown-stats-modal-label').html('Peak Hours (6AM - 9AM)');
+    $('#breakdown-stats-modal').modal('show');
+  });
+
+  $('.show-more-peak-2').on('click', function() {
+    $('#breakdown-stats-modal-label').html('Peak Hours (6PM - 11PM)');
+    $('#breakdown-stats-modal').modal('show');
+  });
+
+  $('.show-more-offpeak-1').on('click', function() {
+    $('#breakdown-stats-modal-label').html('Off-peak Hours (10AM - 5PM)');
+    $('#breakdown-stats-modal').modal('show');
+  });
+
+  $('.show-more-offpeak-2').on('click', function() {
+    $('#breakdown-stats-modal-label').html('Off-peak Hours (12AM - 5AM)');
+    $('#breakdown-stats-modal').modal('show');
+  });
+  
+  // show modal
+  $('#breakdown-stats-modal').on('show.bs.modal', function (event) {
+    $('#breakdown-stats').empty();
+
+    var breakdownStatsSvg = d3.select('#breakdown-stats').append("svg");
+
+    var breakdownStats = [];
+    if ($('#breakdown-stats-modal-label').html() == 'Peak Hours (6AM - 9AM)') {
+      // 6AM
+      breakdownStats.push({
+        'weekday' : (hourlyTaxiAvailabilityCountHash['6AM Mon'].concat(hourlyTaxiAvailabilityCountHash['6AM Tue']).concat(hourlyTaxiAvailabilityCountHash['6AM Wed']).concat(hourlyTaxiAvailabilityCountHash['6AM Thu']).concat(hourlyTaxiAvailabilityCountHash['6AM Fri'])), 
+        'weekend' : (hourlyTaxiAvailabilityCountHash['6AM Sat'].concat(hourlyTaxiAvailabilityCountHash['6AM Sun'])),
+        'time' : '6AM'
+      });
+      // 7AM
+      breakdownStats.push({
+        'weekday' : (hourlyTaxiAvailabilityCountHash['7AM Mon'].concat(hourlyTaxiAvailabilityCountHash['7AM Tue']).concat(hourlyTaxiAvailabilityCountHash['7AM Wed']).concat(hourlyTaxiAvailabilityCountHash['7AM Thu']).concat(hourlyTaxiAvailabilityCountHash['7AM Fri'])),
+        'weekend' : (hourlyTaxiAvailabilityCountHash['7AM Sat'].concat(hourlyTaxiAvailabilityCountHash['7AM Sun'])),
+        'time' : '7AM'
+      });
+      // 8AM
+      breakdownStats.push({
+        'weekday' : (hourlyTaxiAvailabilityCountHash['8AM Mon'].concat(hourlyTaxiAvailabilityCountHash['8AM Tue']).concat(hourlyTaxiAvailabilityCountHash['8AM Wed']).concat(hourlyTaxiAvailabilityCountHash['8AM Thu']).concat(hourlyTaxiAvailabilityCountHash['8AM Fri'])),
+        'weekend' : (hourlyTaxiAvailabilityCountHash['8AM Sat'].concat(hourlyTaxiAvailabilityCountHash['8AM Sun'])),
+        'time' : '8AM'
+      });
+      // 9AM
+      breakdownStats.push({
+        'weekday' : (hourlyTaxiAvailabilityCountHash['9AM Mon'].concat(hourlyTaxiAvailabilityCountHash['9AM Tue']).concat(hourlyTaxiAvailabilityCountHash['9AM Wed']).concat(hourlyTaxiAvailabilityCountHash['9AM Thu']).concat(hourlyTaxiAvailabilityCountHash['9AM Fri'])),
+        'weekend' : (hourlyTaxiAvailabilityCountHash['9AM Sat'].concat(hourlyTaxiAvailabilityCountHash['9AM Sun'])),
+        'time' : '9AM'
+      });
+    } else if ($('#breakdown-stats-modal-label').html() == 'Peak Hours (6PM - 11PM)') {
+      // 6PM
+      breakdownStats.push({
+        'weekday' : (hourlyTaxiAvailabilityCountHash['6PM Mon'].concat(hourlyTaxiAvailabilityCountHash['6PM Tue']).concat(hourlyTaxiAvailabilityCountHash['6PM Wed']).concat(hourlyTaxiAvailabilityCountHash['6PM Thu']).concat(hourlyTaxiAvailabilityCountHash['6PM Fri'])), 
+        'weekend' : (hourlyTaxiAvailabilityCountHash['6PM Sat'].concat(hourlyTaxiAvailabilityCountHash['6PM Sun'])),
+        'time' : '6PM'
+      });
+      // 7PM
+      breakdownStats.push({
+        'weekday' : (hourlyTaxiAvailabilityCountHash['7PM Mon'].concat(hourlyTaxiAvailabilityCountHash['7PM Tue']).concat(hourlyTaxiAvailabilityCountHash['7PM Wed']).concat(hourlyTaxiAvailabilityCountHash['7PM Thu']).concat(hourlyTaxiAvailabilityCountHash['7PM Fri'])),
+        'weekend' : (hourlyTaxiAvailabilityCountHash['7PM Sat'].concat(hourlyTaxiAvailabilityCountHash['7PM Sun'])),
+        'time' : '7PM'
+      });
+      // 8PM
+      breakdownStats.push({
+        'weekday' : (hourlyTaxiAvailabilityCountHash['8PM Mon'].concat(hourlyTaxiAvailabilityCountHash['8PM Tue']).concat(hourlyTaxiAvailabilityCountHash['8PM Wed']).concat(hourlyTaxiAvailabilityCountHash['8PM Thu']).concat(hourlyTaxiAvailabilityCountHash['8PM Fri'])),
+        'weekend' : (hourlyTaxiAvailabilityCountHash['8PM Sat'].concat(hourlyTaxiAvailabilityCountHash['8PM Sun'])),
+        'time' : '8PM'
+      });
+      // 9PM
+      breakdownStats.push({
+        'weekday' : (hourlyTaxiAvailabilityCountHash['9PM Mon'].concat(hourlyTaxiAvailabilityCountHash['9PM Tue']).concat(hourlyTaxiAvailabilityCountHash['9PM Wed']).concat(hourlyTaxiAvailabilityCountHash['9PM Thu']).concat(hourlyTaxiAvailabilityCountHash['9PM Fri'])),
+        'weekend' : (hourlyTaxiAvailabilityCountHash['9PM Sat'].concat(hourlyTaxiAvailabilityCountHash['9PM Sun'])),
+        'time' : '9PM'
+      });
+      // 10PM
+      breakdownStats.push({
+        'weekday' : (hourlyTaxiAvailabilityCountHash['10PM Mon'].concat(hourlyTaxiAvailabilityCountHash['10PM Tue']).concat(hourlyTaxiAvailabilityCountHash['10PM Wed']).concat(hourlyTaxiAvailabilityCountHash['10PM Thu']).concat(hourlyTaxiAvailabilityCountHash['10PM Fri'])),
+        'weekend' : (hourlyTaxiAvailabilityCountHash['10PM Sat'].concat(hourlyTaxiAvailabilityCountHash['10PM Sun'])),
+        'time' : '10PM'
+      });
+      // 11PM
+      breakdownStats.push({
+        'weekday' : (hourlyTaxiAvailabilityCountHash['11PM Mon'].concat(hourlyTaxiAvailabilityCountHash['11PM Tue']).concat(hourlyTaxiAvailabilityCountHash['11PM Wed']).concat(hourlyTaxiAvailabilityCountHash['11PM Thu']).concat(hourlyTaxiAvailabilityCountHash['11PM Fri'])),
+        'weekend' : (hourlyTaxiAvailabilityCountHash['11PM Sat'].concat(hourlyTaxiAvailabilityCountHash['11PM Sun'])),
+        'time' : '11PM'
+      });
+    } else if ($('#breakdown-stats-modal-label').html() == 'Off-peak Hours (10AM - 5PM)') {
+      // 10AM
+      breakdownStats.push({
+        'weekday' : (hourlyTaxiAvailabilityCountHash['10AM Mon'].concat(hourlyTaxiAvailabilityCountHash['10AM Tue']).concat(hourlyTaxiAvailabilityCountHash['10AM Wed']).concat(hourlyTaxiAvailabilityCountHash['10AM Thu']).concat(hourlyTaxiAvailabilityCountHash['10AM Fri'])), 
+        'weekend' : (hourlyTaxiAvailabilityCountHash['10AM Sat'].concat(hourlyTaxiAvailabilityCountHash['10AM Sun'])),
+        'time' : '10AM'
+      });
+      // 11AM
+      breakdownStats.push({
+        'weekday' : (hourlyTaxiAvailabilityCountHash['11AM Mon'].concat(hourlyTaxiAvailabilityCountHash['11AM Tue']).concat(hourlyTaxiAvailabilityCountHash['11AM Wed']).concat(hourlyTaxiAvailabilityCountHash['11AM Thu']).concat(hourlyTaxiAvailabilityCountHash['11AM Fri'])),
+        'weekend' : (hourlyTaxiAvailabilityCountHash['11AM Sat'].concat(hourlyTaxiAvailabilityCountHash['11AM Sun'])),
+        'time' : '11AM'
+      });
+      // 12PM
+      breakdownStats.push({
+        'weekday' : (hourlyTaxiAvailabilityCountHash['12PM Mon'].concat(hourlyTaxiAvailabilityCountHash['12PM Tue']).concat(hourlyTaxiAvailabilityCountHash['12PM Wed']).concat(hourlyTaxiAvailabilityCountHash['12PM Thu']).concat(hourlyTaxiAvailabilityCountHash['12PM Fri'])),
+        'weekend' : (hourlyTaxiAvailabilityCountHash['12PM Sat'].concat(hourlyTaxiAvailabilityCountHash['12PM Sun'])),
+        'time' : '12PM'
+      });
+      // 1PM
+      breakdownStats.push({
+        'weekday' : (hourlyTaxiAvailabilityCountHash['1PM Mon'].concat(hourlyTaxiAvailabilityCountHash['1PM Tue']).concat(hourlyTaxiAvailabilityCountHash['1PM Wed']).concat(hourlyTaxiAvailabilityCountHash['1PM Thu']).concat(hourlyTaxiAvailabilityCountHash['1PM Fri'])),
+        'weekend' : (hourlyTaxiAvailabilityCountHash['1PM Sat'].concat(hourlyTaxiAvailabilityCountHash['1PM Sun'])),
+        'time' : '1PM'
+      });
+      // 2PM
+      breakdownStats.push({
+        'weekday' : (hourlyTaxiAvailabilityCountHash['2PM Mon'].concat(hourlyTaxiAvailabilityCountHash['2PM Tue']).concat(hourlyTaxiAvailabilityCountHash['2PM Wed']).concat(hourlyTaxiAvailabilityCountHash['2PM Thu']).concat(hourlyTaxiAvailabilityCountHash['2PM Fri'])),
+        'weekend' : (hourlyTaxiAvailabilityCountHash['2PM Sat'].concat(hourlyTaxiAvailabilityCountHash['2PM Sun'])),
+        'time' : '2PM'
+      });
+      // 3PM
+      breakdownStats.push({
+        'weekday' : (hourlyTaxiAvailabilityCountHash['3PM Mon'].concat(hourlyTaxiAvailabilityCountHash['3PM Tue']).concat(hourlyTaxiAvailabilityCountHash['3PM Wed']).concat(hourlyTaxiAvailabilityCountHash['3PM Thu']).concat(hourlyTaxiAvailabilityCountHash['3PM Fri'])),
+        'weekend' : (hourlyTaxiAvailabilityCountHash['3PM Sat'].concat(hourlyTaxiAvailabilityCountHash['3PM Sun'])),
+        'time' : '3PM'
+      });
+      // 4PM
+      breakdownStats.push({
+        'weekday' : (hourlyTaxiAvailabilityCountHash['4PM Mon'].concat(hourlyTaxiAvailabilityCountHash['4PM Tue']).concat(hourlyTaxiAvailabilityCountHash['4PM Wed']).concat(hourlyTaxiAvailabilityCountHash['4PM Thu']).concat(hourlyTaxiAvailabilityCountHash['4PM Fri'])),
+        'weekend' : (hourlyTaxiAvailabilityCountHash['4PM Sat'].concat(hourlyTaxiAvailabilityCountHash['4PM Sun'])),
+        'time' : '4PM'
+      });
+      // 5PM
+      breakdownStats.push({
+        'weekday' : (hourlyTaxiAvailabilityCountHash['5PM Mon'].concat(hourlyTaxiAvailabilityCountHash['5PM Tue']).concat(hourlyTaxiAvailabilityCountHash['5PM Wed']).concat(hourlyTaxiAvailabilityCountHash['5PM Thu']).concat(hourlyTaxiAvailabilityCountHash['5PM Fri'])),
+        'weekend' : (hourlyTaxiAvailabilityCountHash['5PM Sat'].concat(hourlyTaxiAvailabilityCountHash['5PM Sun'])),
+        'time' : '5PM'
+      });
+    } else if ($('#breakdown-stats-modal-label').html() == 'Off-peak Hours (12AM - 5AM)') {
+      // 12AM
+      breakdownStats.push({
+        'weekday' : (hourlyTaxiAvailabilityCountHash['12AM Mon'].concat(hourlyTaxiAvailabilityCountHash['12AM Tue']).concat(hourlyTaxiAvailabilityCountHash['12AM Wed']).concat(hourlyTaxiAvailabilityCountHash['12AM Thu']).concat(hourlyTaxiAvailabilityCountHash['12AM Fri'])), 
+        'weekend' : (hourlyTaxiAvailabilityCountHash['12AM Sat'].concat(hourlyTaxiAvailabilityCountHash['12AM Sun'])),
+        'time' : '12AM'
+      });
+      // 1AM
+      breakdownStats.push({
+        'weekday' : (hourlyTaxiAvailabilityCountHash['1AM Mon'].concat(hourlyTaxiAvailabilityCountHash['1AM Tue']).concat(hourlyTaxiAvailabilityCountHash['1AM Wed']).concat(hourlyTaxiAvailabilityCountHash['1AM Thu']).concat(hourlyTaxiAvailabilityCountHash['1AM Fri'])),
+        'weekend' : (hourlyTaxiAvailabilityCountHash['1AM Sat'].concat(hourlyTaxiAvailabilityCountHash['1AM Sun'])),
+        'time' : '1AM'
+      });
+      // 2AM
+      breakdownStats.push({
+        'weekday' : (hourlyTaxiAvailabilityCountHash['2AM Mon'].concat(hourlyTaxiAvailabilityCountHash['2AM Tue']).concat(hourlyTaxiAvailabilityCountHash['2AM Wed']).concat(hourlyTaxiAvailabilityCountHash['2AM Thu']).concat(hourlyTaxiAvailabilityCountHash['2AM Fri'])),
+        'weekend' : (hourlyTaxiAvailabilityCountHash['2AM Sat'].concat(hourlyTaxiAvailabilityCountHash['2AM Sun'])),
+        'time' : '2AM'
+      });
+      // 3AM
+      breakdownStats.push({
+        'weekday' : (hourlyTaxiAvailabilityCountHash['3AM Mon'].concat(hourlyTaxiAvailabilityCountHash['3AM Tue']).concat(hourlyTaxiAvailabilityCountHash['3AM Wed']).concat(hourlyTaxiAvailabilityCountHash['3AM Thu']).concat(hourlyTaxiAvailabilityCountHash['3AM Fri'])),
+        'weekend' : (hourlyTaxiAvailabilityCountHash['3AM Sat'].concat(hourlyTaxiAvailabilityCountHash['3AM Sun'])),
+        'time' : '3AM'
+      });
+      // 4AM
+      breakdownStats.push({
+        'weekday' : (hourlyTaxiAvailabilityCountHash['4AM Mon'].concat(hourlyTaxiAvailabilityCountHash['4AM Tue']).concat(hourlyTaxiAvailabilityCountHash['4AM Wed']).concat(hourlyTaxiAvailabilityCountHash['4AM Thu']).concat(hourlyTaxiAvailabilityCountHash['4AM Fri'])),
+        'weekend' : (hourlyTaxiAvailabilityCountHash['4AM Sat'].concat(hourlyTaxiAvailabilityCountHash['4AM Sun'])),
+        'time' : '4AM'
+      });
+      // 5AM
+      breakdownStats.push({
+        'weekday' : (hourlyTaxiAvailabilityCountHash['5AM Mon'].concat(hourlyTaxiAvailabilityCountHash['5AM Tue']).concat(hourlyTaxiAvailabilityCountHash['5AM Wed']).concat(hourlyTaxiAvailabilityCountHash['5AM Thu']).concat(hourlyTaxiAvailabilityCountHash['5AM Fri'])),
+        'weekend' : (hourlyTaxiAvailabilityCountHash['5AM Sat'].concat(hourlyTaxiAvailabilityCountHash['5AM Sun'])),
+        'time' : '5AM'
+      });
+    }
+
+    breakdownStatsSvg.append('text')
+      .classed('breakdown-stats-header', true)
+      .attr('x', 105)
+      .attr('y', 20)
+      .text('Overall')
+
+    breakdownStatsSvg.append('text')
+      .classed('breakdown-stats-header', true)
+      .attr('x', 395)
+      .attr('y', 20)
+      .text('Weekdays')
+
+    breakdownStatsSvg.append('text')
+      .classed('breakdown-stats-header', true)
+      .attr('x', 685)
+      .attr('y', 20)
+      .text('Weekends')
+
+    var xBreakdownStats = d3.scaleLinear()
+      .domain([0, 10000])
+      .range([0, 220]);
+
+    var xBreakdownStatsColorScale = d3.scaleLinear()
+      .domain([0, 10000])
+      .range(['#333', '#F4D03F']);
+
+    for (var i=0; i < breakdownStats.length; i++) {
+      var flattenOverallArray = [];
+      
+      breakdownStatsSvg.append('text')
+        .classed('breakdown-stats-header', true)
+        .attr('x', 40)
+        .attr('y', 70 + (i * 60))
+        .text(breakdownStats[i].time);
+
+      breakdownStats[i].weekday.forEach(function(array) {
+        flattenOverallArray = flattenOverallArray.concat(array);
+      });
+
+      breakdownStats[i].weekend.forEach(function(array) {
+        flattenOverallArray = flattenOverallArray.concat(array);
+      });
+      
+      // overall
+      var sum = flattenOverallArray.reduce(function(a, b) { return a + b; });
+      var avg = Math.round(sum / flattenOverallArray.length);
+      var minRange = Math.min.apply(Math, flattenOverallArray);
+      var maxRange = Math.max.apply(Math, flattenOverallArray);
+      
+      breakdownStatsSvg.append('line')
+        .classed('bar-line', true)
+        .attr('x1', 105)
+        .attr('x2', 105)
+        .attr('y1', 66 + (i*60))
+        .attr('y2', 66 + (i*60))
+        .attr('opacity', 0)
+        .transition()
+        .delay(50)
+        .duration(200)
+        .attr('opacity', 0.6)
+        .attr('x2', 105 + xBreakdownStats(10000))
+        .ease(d3.easeLinear)
+
+      breakdownStatsSvg.append('line')
+        .classed('bar-line', true)
+        .attr('x1', 105)
+        .attr('x2', 105)
+        .attr('y1', 63 + (i*60))
+        .attr('y2', 69 + (i*60))
+        .attr('opacity', 0.6)
+
+      breakdownStatsSvg.append('line')
+        .classed('bar-line', true)
+        .attr('x1', 105 + xBreakdownStats(10000))
+        .attr('x2', 105 + xBreakdownStats(10000))
+        .attr('y1', 63 + (i*60))
+        .attr('y2', 69 + (i*60))
+        .attr('opacity', 0)
+        .transition()
+        .delay(250)
+        .duration(50)
+        .attr('opacity', 0.6)
+        .ease(d3.easeLinear)
+
+      breakdownStatsSvg.append('rect')
+        .classed('horizontal-bar', true)
+        .attr('x', 125 + xBreakdownStats(minRange))
+        .attr('y', 60 + (i*60))
+        .attr('rx', 2)
+        .attr('ry', 2)
+        .attr('height', 12)
+        .attr('width', 0)
+        .transition()
+        .delay(250)
+        .duration(300)
+        .attr('width', xBreakdownStats(maxRange) - xBreakdownStats(minRange))
+        .style('fill', xBreakdownStatsColorScale(maxRange))
+        .ease(d3.easeLinear)
+
+      breakdownStatsSvg.append('circle')
+        .classed('horizontal-bar-circle', true)
+        .attr('cx', 125 + xBreakdownStats(avg))
+        .attr('cy', 66 + (i*60))
+        .attr("r", 3)
+        .attr('opacity', 0)
+        .transition()
+        .delay(700)
+        .duration(200)
+        .attr('opacity', 1)
+        .ease(d3.easeLinear)
+
+      breakdownStatsSvg.append('text')
+        .classed('horizontal-bar-value-left', true)
+        .attr('x', 125 + xBreakdownStats(minRange))
+        .attr('dx', -20)
+        .attr('y', 85 + (i*60))
+        .attr('opacity', 0)
+        .text(minRange)
+        .transition()
+        .delay(500)
+        .duration(300)
+        .attr('opacity', 1)
+        .ease(d3.easeLinear)
+
+      breakdownStatsSvg.append('text')
+        .classed('horizontal-bar-value-right', true)
+        .attr('x', 125 + xBreakdownStats(maxRange))
+        .attr('y', 85 + (i*60))
+        .attr('opacity', 0)
+        .text(maxRange)
+        .transition()
+        .delay(500)
+        .duration(300)
+        .attr('opacity', 1)
+        .ease(d3.easeLinear)
+
+      breakdownStatsSvg.append('text')
+        .classed('horizontal-bar-value', true)
+        .attr('x', 125 + xBreakdownStats(avg))
+        .attr('y', 85 + (i*60))
+        .attr('dy', -30)
+        .attr('opacity', 0)
+        .text(avg)
+        .transition()
+        .delay(500)
+        .duration(300)
+        .attr('opacity', 1)
+        .ease(d3.easeLinear)
+
+      // weekday
+      var weekdaySum = breakdownStats[i].weekday.reduce(function(a, b) { return a + b; });
+      var weekdayAvg = Math.round(weekdaySum / breakdownStats[i].weekday.length);
+      var weekdayMinRange = Math.min.apply(Math, breakdownStats[i].weekday);
+      var weekdayMaxRange = Math.max.apply(Math, breakdownStats[i].weekday);
+      
+      breakdownStatsSvg.append('line')
+        .classed('bar-line', true)
+        .attr('x1', 395)
+        .attr('x2', 395)
+        .attr('y1', 66 + (i*60))
+        .attr('y2', 66 + (i*60))
+        .attr('opacity', 0)
+        .transition()
+        .delay(50)
+        .duration(200)
+        .attr('opacity', 0.6)
+        .attr('x2', 395 + xBreakdownStats(10000))
+        .ease(d3.easeLinear)
+
+      breakdownStatsSvg.append('line')
+        .classed('bar-line', true)
+        .attr('x1', 395)
+        .attr('x2', 395)
+        .attr('y1', 63 + (i*60))
+        .attr('y2', 69 + (i*60))
+        .attr('opacity', 0.6)
+
+      breakdownStatsSvg.append('line')
+        .classed('bar-line', true)
+        .attr('x1', 395 + xBreakdownStats(10000))
+        .attr('x2', 395 + xBreakdownStats(10000))
+        .attr('y1', 63 + (i*60))
+        .attr('y2', 69 + (i*60))
+        .attr('opacity', 0)
+        .transition()
+        .delay(250)
+        .duration(50)
+        .attr('opacity', 0.6)
+        .ease(d3.easeLinear)
+
+      breakdownStatsSvg.append('rect')
+        .classed('horizontal-bar', true)
+        .attr('x', 415 + xBreakdownStats(weekdayMinRange))
+        .attr('y', 60 + (i*60))
+        .attr('rx', 2)
+        .attr('ry', 2)
+        .attr('height', 12)
+        .attr('width', 0)
+        .transition()
+        .delay(250)
+        .duration(300)
+        .attr('width', xBreakdownStats(weekdayMaxRange) - xBreakdownStats(weekdayMinRange))
+        .style('fill', xBreakdownStatsColorScale(weekdayMaxRange))
+        .ease(d3.easeLinear)
+
+      breakdownStatsSvg.append('circle')
+        .classed('horizontal-bar-circle', true)
+        .attr('cx', 415 + xBreakdownStats(weekdayAvg))
+        .attr('cy', 66 + (i*60))
+        .attr("r", 3)
+        .attr('opacity', 0)
+        .transition()
+        .delay(700)
+        .duration(200)
+        .attr('opacity', 1)
+        .ease(d3.easeLinear)
+
+      breakdownStatsSvg.append('text')
+        .classed('horizontal-bar-value-left', true)
+        .attr('x', 415 + xBreakdownStats(weekdayMinRange))
+        .attr('dx', -20)
+        .attr('y', 85 + (i*60))
+        .attr('opacity', 0)
+        .text(weekdayMinRange)
+        .transition()
+        .delay(500)
+        .duration(300)
+        .attr('opacity', 1)
+        .ease(d3.easeLinear)
+
+      breakdownStatsSvg.append('text')
+        .classed('horizontal-bar-value-right', true)
+        .attr('x', 415 + xBreakdownStats(weekdayMaxRange))
+        .attr('y', 85 + (i*60))
+        .attr('opacity', 0)
+        .text(weekdayMaxRange)
+        .transition()
+        .delay(500)
+        .duration(300)
+        .attr('opacity', 1)
+        .ease(d3.easeLinear)
+
+      breakdownStatsSvg.append('text')
+        .classed('horizontal-bar-value', true)
+        .attr('x', 415 + xBreakdownStats(weekdayAvg))
+        .attr('y', 85 + (i*60))
+        .attr('dy', -30)
+        .attr('opacity', 0)
+        .text(weekdayAvg)
+        .transition()
+        .delay(500)
+        .duration(300)
+        .attr('opacity', 1)
+        .ease(d3.easeLinear)
+
+      // weekend
+      var weekendSum = breakdownStats[i].weekend.reduce(function(a, b) { return a + b; });
+      var weekendAvg = Math.round(weekendSum / breakdownStats[i].weekend.length);
+      var weekendMinRange = Math.min.apply(Math, breakdownStats[i].weekend);
+      var weekendMaxRange = Math.max.apply(Math, breakdownStats[i].weekend);
+      
+      breakdownStatsSvg.append('line')
+        .classed('bar-line', true)
+        .attr('x1', 685)
+        .attr('x2', 685)
+        .attr('y1', 66 + (i*60))
+        .attr('y2', 66 + (i*60))
+        .attr('opacity', 0)
+        .transition()
+        .delay(50)
+        .duration(200)
+        .attr('opacity', 0.6)
+        .attr('x2', 685 + xBreakdownStats(10000))
+        .ease(d3.easeLinear)
+
+      breakdownStatsSvg.append('line')
+        .classed('bar-line', true)
+        .attr('x1', 685)
+        .attr('x2', 685)
+        .attr('y1', 63 + (i*60))
+        .attr('y2', 69 + (i*60))
+        .attr('opacity', 0.6)
+
+      breakdownStatsSvg.append('line')
+        .classed('bar-line', true)
+        .attr('x1', 685 + xBreakdownStats(10000))
+        .attr('x2', 685 + xBreakdownStats(10000))
+        .attr('y1', 63 + (i*60))
+        .attr('y2', 69 + (i*60))
+        .attr('opacity', 0)
+        .transition()
+        .delay(250)
+        .duration(50)
+        .attr('opacity', 0.6)
+        .ease(d3.easeLinear)
+
+      breakdownStatsSvg.append('rect')
+        .classed('horizontal-bar', true)
+        .attr('x', 705 + xBreakdownStats(weekendMinRange))
+        .attr('y', 60 + (i*60))
+        .attr('rx', 2)
+        .attr('ry', 2)
+        .attr('height', 12)
+        .attr('width', 0)
+        .transition()
+        .delay(250)
+        .duration(300)
+        .attr('width', xBreakdownStats(weekendMaxRange) - xBreakdownStats(weekendMinRange))
+        .style('fill', xBreakdownStatsColorScale(weekendMaxRange))
+        .ease(d3.easeLinear)
+
+      breakdownStatsSvg.append('circle')
+        .classed('horizontal-bar-circle', true)
+        .attr('cx', 705 + xBreakdownStats(weekendAvg))
+        .attr('cy', 66 + (i*60))
+        .attr("r", 3)
+        .attr('opacity', 0)
+        .transition()
+        .delay(700)
+        .duration(200)
+        .attr('opacity', 1)
+        .ease(d3.easeLinear)
+
+      breakdownStatsSvg.append('text')
+        .classed('horizontal-bar-value-left', true)
+        .attr('x', 705 + xBreakdownStats(weekendMinRange))
+        .attr('dx', -20)
+        .attr('y', 85 + (i*60))
+        .attr('opacity', 0)
+        .text(weekendMinRange)
+        .transition()
+        .delay(500)
+        .duration(300)
+        .attr('opacity', 1)
+        .ease(d3.easeLinear)
+
+      breakdownStatsSvg.append('text')
+        .classed('horizontal-bar-value-right', true)
+        .attr('x', 705 + xBreakdownStats(weekendMaxRange))
+        .attr('y', 85 + (i*60))
+        .attr('opacity', 0)
+        .text(weekendMaxRange)
+        .transition()
+        .delay(500)
+        .duration(300)
+        .attr('opacity', 1)
+        .ease(d3.easeLinear)
+
+      breakdownStatsSvg.append('text')
+        .classed('horizontal-bar-value', true)
+        .attr('x', 705 + xBreakdownStats(weekendAvg))
+        .attr('y', 85 + (i*60))
+        .attr('dy', -30)
+        .attr('opacity', 0)
+        .text(weekendAvg)
+        .transition()
+        .delay(500)
+        .duration(300)
+        .attr('opacity', 1)
+        .ease(d3.easeLinear)
+    }
+
+    breakdownStatsSvg
+      .attr('width', 950)
+      .attr('height',  60 + (breakdownStats.length * 60));
+  })
+
 });

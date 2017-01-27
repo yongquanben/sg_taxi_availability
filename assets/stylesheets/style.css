@@ -64,6 +64,7 @@ body {
     overflow: hidden;
     width: 120px;
     color: #fff;
+    font-size: 12px;
     -webkit-appearance: none;
     -moz-appearance: none;
     -webkit-border-radius: 5px;
@@ -129,7 +130,7 @@ div.tooltip-content {
 .play-button, .pause-button, .test-button {
 	font-size: 12px;
 	position: absolute;
-	bottom: 28px;
+	bottom: 32px;
 	left: 305px;
 	z-index: 1200;
 	border: 1px solid #fff;
@@ -149,8 +150,7 @@ div.tooltip-content {
 }
 
 .play-button i, .pause-button i {
-	line-height: 20px;
-	/*padding-right: 5px;*/
+	line-height: 18px;
 	font-size: 10px;
 }
 
@@ -223,10 +223,21 @@ div.tooltip-content {
   	stroke-width: 1.5px;
 }
 
-.horizontal-bar-value {
+.horizontal-bar-value, .horizontal-bar-value-left, .horizontal-bar-value-right {
 	fill: #fff;
 	font-size: 10px;
+}
+
+.horizontal-bar-value {
 	text-anchor: middle;
+}
+
+.horizontal-bar-value-left {
+	text-anchor: left;
+}
+
+.horizontal-bar-value-right {
+	text-anchor: right;
 }
 
 .horizontal-bar-circle {
@@ -243,4 +254,83 @@ div.tooltip-content {
 	fill: none;
 	stroke: #fff;
 	stroke-width: 1.5px;
+}
+
+.show-more-peak-1, .show-more-peak-2, .show-more-offpeak-1, .show-more-offpeak-2 {
+	position: absolute;
+	z-index: 1205;
+	color: #777;
+	border: 1px solid #777;
+	border-radius: 50%;
+	width: 20px;
+	height: 20px;
+	text-align: center;
+	transition: all 0.3s ease;
+	display: block;
+	cursor: pointer;
+}
+
+.show-more-peak-1:hover, .show-more-peak-2:hover, .show-more-offpeak-1:hover, .show-more-offpeak-2:hover {
+	border-color: #fff;
+	color: #fff;
+}
+
+.show-more-peak-1 {
+	left: 765px;
+	bottom: 218px;
+}
+
+.show-more-peak-2 {
+	left: 765px;
+	bottom: 183px;
+}
+
+.show-more-offpeak-1 {
+	left: 765px;
+	bottom: 118px;
+}
+
+.show-more-offpeak-2 {
+	left: 765px;
+	bottom: 83px;
+}
+
+.show-more-peak-1 i, .show-more-peak-2 i, .show-more-offpeak-1 i, .show-more-offpeak-2 i {
+	line-height: 20px;
+	font-size: 10px;
+	display: block;
+}
+
+#breakdown-stats-modal {
+	z-index: 1300 !important;
+}
+
+#breakdown-stats-modal .modal-dialog {
+	width: 985px;
+}
+
+#breakdown-stats-modal .modal-content {
+	background-color: rgba(0, 0, 0, 0.85);
+    border: 2px solid #fff;
+}
+
+#breakdown-stats-modal .modal-title {
+	display: inline-block;
+	color: #fff;
+}
+
+#breakdown-stats-modal .modal-footer {
+	border-top: none;
+}
+
+#breakdown-stats-modal .close {
+	color: #fff;
+	opacity: 1;
+	text-shadow: none;
+}
+
+.breakdown-stats-header {
+	font-size: 13px;
+	font-weight: bold;
+	fill: #fff;
 }

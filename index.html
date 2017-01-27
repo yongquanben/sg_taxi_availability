@@ -7,7 +7,8 @@
   <title>Taxi Availability in Singapore</title>
   <meta name="description" content="Map Visualization - Taxi Availability in Singapore">
   <meta name="author" content="SitePoint">
-
+  
+  <link rel="stylesheet" href="assets/vendor/bootstrap/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="assets/vendor/leaflet/dist/leaflet.css" />
   <link rel="stylesheet" href="assets/vendor/font-awesome/css/font-awesome.min.css">
   <link rel="stylesheet" href="assets/stylesheets/style.css">
@@ -20,6 +21,7 @@
 <body>
   <div id="indicator">Best Viewed in 1280 x 768 or higher</div>
   <div id="mapid"></div>
+
   <div class="availability-chart"></div>
   <select id="availability-select">
     <option value="5-minutes">Every 5 Mins</option>
@@ -28,17 +30,51 @@
     <option value="60-minutes">Every 1 Hour</option>
   </select>
 
-  <div class="availability-chart-title">Taxi availability in the last 100 mins<br />(Play to see map density changes every 5 mins)</div>
-  <div class="weekly-statistics-chart"></div>
-  <div class="weekly-statistics-chart-title">Taxi availability in the last 2 weeks<br />(Hourly data is used for better accuracy)</div>
   <div class="play-button">
     <i class="fa fa-play"></i>
   </div>
   <div class="pause-button button-hide">
     <i class="fa fa-pause"></i>
   </div>
+
   <div id="separator"></div>
+
+  <div class="show-more-peak-1" style="display: none;">
+    <i class="fa fa-ellipsis-h"></i>
+  </div>
+  <div class="show-more-peak-2" style="display: none;">
+    <i class="fa fa-ellipsis-h"></i>
+  </div>
+  <div class="show-more-offpeak-1" style="display: none;">
+    <i class="fa fa-ellipsis-h"></i>
+  </div>
+  <div class="show-more-offpeak-2" style="display: none;">
+    <i class="fa fa-ellipsis-h"></i>
+  </div>
+
+  <div class="availability-chart-title">Taxi availability in the last 100 mins<br />(Play to see map density changes every 5 mins)</div>
+  <div class="weekly-statistics-chart"></div>
+  <div class="weekly-statistics-chart-title">Taxi availability in the last 2 weeks<br />(Hourly data is used for better accuracy)</div>
+
+  <!-- Modal -->
+  <div class="modal fade" id="breakdown-stats-modal" tabindex="-1" role="dialog" aria-labelledby="breakdown-stats-modal-label" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="breakdown-stats-modal-label">Peak Hours (6AM - 9AM)</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div id="breakdown-stats"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
   <script src="https://code.jquery.com/jquery-1.11.0.min.js"></script>
+  <script src="assets/vendor/bootstrap/dist/js/bootstrap.min.js"></script>
   <script src="assets/vendor/moment/min/moment.min.js"></script>
   <script src="assets/vendor/d3/build/d3.min.js"></script>
   <script src="assets/vendor/d3-hexbin/build/d3-hexbin.min.js"></script>
