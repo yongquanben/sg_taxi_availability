@@ -169,17 +169,29 @@ $(function() {
       .classed('peak-timing-title', true)
       .attr('x', 455)
       .attr('y', 25)
-      .text('Highest Availability');
+      .text('Best Peak Hours Time to Hire Taxi');
     
     this.append('text')
-      .classed('highest-availability-icon', true)
+      .classed('highest-availability-icon-1', true)
       .attr('x', 460)
       .attr('y', 65)
       .text("\uf102");
 
     this.append('circle')
-      .classed('highest-availability-circle', true)
+      .classed('highest-availability-circle-1', true)
       .attr('cx', 470)
+      .attr('cy', 55)
+      .attr('r', 16)
+    
+    this.append('text')
+      .classed('highest-availability-icon-2', true)
+      .attr('x', 660)
+      .attr('y', 65)
+      .text("\uf102");
+
+    this.append('circle')
+      .classed('highest-availability-circle-2', true)
+      .attr('cx', 670)
       .attr('cy', 55)
       .attr('r', 16)
 
@@ -187,42 +199,78 @@ $(function() {
       .classed('peak-timing-title', true)
       .attr('x', 455)
       .attr('y', 125)
-      .text('Lowest Availability');
+      .text('Best Off-peak Hours Time to Hire Taxi');
 
     this.append('text')
-      .classed('lowest-availability-icon', true)
+      .classed('lowest-availability-icon-1', true)
       .attr('x', 460)
       .attr('y', 168)
       .text("\uf103");
 
     this.append('circle')
-      .classed('lowest-availability-circle', true)
+      .classed('lowest-availability-circle-1', true)
       .attr('cx', 470)
       .attr('cy', 155)
       .attr('r', 16)
 
     this.append('text')
-      .classed('highest-availability-date', true)
+      .classed('lowest-availability-icon-2', true)
+      .attr('x', 660)
+      .attr('y', 168)
+      .text("\uf103");
+
+    this.append('circle')
+      .classed('lowest-availability-circle-2', true)
+      .attr('cx', 670)
+      .attr('cy', 155)
+      .attr('r', 16)
+
+    this.append('text')
+      .classed('highest-availability-date-1', true)
       .classed('crunching-statistics', true)
       .attr('x', 495)
       .attr('y', 50)
       .text('Crunching Statistics...');
 
     this.append('text')
-      .classed('highest-availability-count', true)
+      .classed('highest-availability-count-1', true)
       .attr('x', 495)
       .attr('y', 74)
 
     this.append('text')
-      .classed('lowest-availability-date', true)
+      .classed('highest-availability-date-2', true)
+      .classed('crunching-statistics', true)
+      .attr('x', 695)
+      .attr('y', 50)
+      .text('Crunching Statistics...');
+
+    this.append('text')
+      .classed('highest-availability-count-2', true)
+      .attr('x', 695)
+      .attr('y', 74)
+
+    this.append('text')
+      .classed('lowest-availability-date-1', true)
       .classed('crunching-statistics', true)
       .attr('x', 495)
       .attr('y', 150)
       .text('Crunching Statistics...');
 
     this.append('text')
-      .classed('lowest-availability-count', true)
+      .classed('lowest-availability-count-1', true)
       .attr('x', 495)
+      .attr('y', 174)
+
+    this.append('text')
+      .classed('lowest-availability-date-2', true)
+      .classed('crunching-statistics', true)
+      .attr('x', 695)
+      .attr('y', 150)
+      .text('Crunching Statistics...');
+
+    this.append('text')
+      .classed('lowest-availability-count-2', true)
+      .attr('x', 695)
       .attr('y', 174)
 
     this.append('text')
@@ -319,72 +367,223 @@ $(function() {
       .domain([0, 10000])
       .range(['#333', '#F4D03F']);
 
-    weeklyStatisticsChartSvg.select('.highest-availability-date')
-      .classed('crunching-statistics', false)
-      .attr('opacity', 0)
-      .transition()
-      .duration(500)
-      .attr('opacity', 1)
-      .text(highestTaxiAvailability.key);
-
-    weeklyStatisticsChartSvg.select('.highest-availability-count')
-      .classed('crunching-statistics', false)
-      .transition()
-      .duration(500)
-      .on("start", function repeat() {
-          d3.active(this)
-            .tween("text", function() {
-          var that = d3.select(this);
-          var i = d3.interpolateNumber(0, highestTaxiAvailability.value);
-          return function(t) { that.text(format(i(t)) + " Taxis"); };
-        })
-      });
-
-    weeklyStatisticsChartSvg.select('.lowest-availability-date')
-      .classed('crunching-statistics', false)
-      .attr('opacity', 0)
-      .transition()
-      .duration(500)
-      .attr('opacity', 1)
-      .text(lowestTaxiAvailability.key);
-
-    weeklyStatisticsChartSvg.select('.lowest-availability-count')
-      .classed('crunching-statistics', false)
-      .transition()
-      .duration(500)
-      .on("start", function repeat() {
-          d3.active(this)
-            .tween("text", function() {
-          var that = d3.select(this);
-          var i = d3.interpolateNumber(0, lowestTaxiAvailability.value);
-          return function(t) { that.text(format(i(t)) + " Taxis"); };
-        })
-      });
-
     // render horizontal barchart
     var hourlyPeakTaxiAvailabilityCount1 = [];
     var hourlyPeakTaxiAvailabilityCount2 = [];
     var hourlyOffPeakTaxiAvailabilityCount1 = [];
     var hourlyOffPeakTaxiAvailabilityCount2 = [];
     
+    // compute best timing hiring
+    var peakHighTaxiAvgAvailabilityCount1 = {};
+    var peakHighTaxiAvgAvailabilityCount2 = {};
+    var offPeakHighTaxiAvgAvailabilityCount1 = {};
+    var offPeakHighTaxiAvgAvailabilityCount2 = {};
+    var breakdownStatsHash = {};
+
     Object.keys(params.hourlyTaxiAvailabilityCountData).map(function(key, index) {
       time = key.split(' ')[0];
       switch(time) {
         case '6AM': case '7AM': case '8AM': case '9AM':
+          // for rendering horizontal barchart - allocating to respective peak/offpeak slots
+          if (breakdownStatsHash['6AM - 9AM'] == null) { breakdownStatsHash['6AM - 9AM'] = {}; }
+          if (breakdownStatsHash['6AM - 9AM'][time] == null) { breakdownStatsHash['6AM - 9AM'][time] = []; }
+          breakdownStatsHash['6AM - 9AM'][time].push(params.hourlyTaxiAvailabilityCountData[key]);
+
+          // for rendering horizontal barchart
           hourlyPeakTaxiAvailabilityCount1.push(params.hourlyTaxiAvailabilityCountData[key]);
           break;
         case '6PM': case '7PM': case '8PM': case '9PM': case '10PM': case '11PM':
+          // for rendering horizontal barchart - allocating to respective peak/offpeak slots
+          if (breakdownStatsHash['6PM - 11PM'] == null) { breakdownStatsHash['6PM - 11PM'] = {}; }
+          if (breakdownStatsHash['6PM - 11PM'][time] == null) { breakdownStatsHash['6PM - 11PM'][time] = []; }
+          breakdownStatsHash['6PM - 11PM'][time].push(params.hourlyTaxiAvailabilityCountData[key]);
+
+          // for rendering horizontal barchart
           hourlyPeakTaxiAvailabilityCount2.push(params.hourlyTaxiAvailabilityCountData[key]);
           break;
         case '10AM': case '11AM': case '12PM': case '1PM': case '2PM': case '3PM': case '4PM': case '5PM':
+          // for rendering horizontal barchart - allocating to respective peak/offpeak slots
+          if (breakdownStatsHash['10AM - 5PM'] == null) { breakdownStatsHash['10AM - 5PM'] = {}; }
+          if (breakdownStatsHash['10AM - 5PM'][time] == null) { breakdownStatsHash['10AM - 5PM'][time] = []; }
+          breakdownStatsHash['10AM - 5PM'][time].push(params.hourlyTaxiAvailabilityCountData[key]);
+
+          // for rendering horizontal barchart
           hourlyOffPeakTaxiAvailabilityCount1.push(params.hourlyTaxiAvailabilityCountData[key]);
           break;
         case '12AM': case '1AM': case '2AM': case '3AM': case '4AM': case '5AM':
+          // for rendering horizontal barchart - allocating to respective peak/offpeak slots
+          if (breakdownStatsHash['12AM - 5AM'] == null) { breakdownStatsHash['12AM - 5AM'] = {}; }
+          if (breakdownStatsHash['12AM - 5AM'][time] == null) { breakdownStatsHash['12AM - 5AM'][time] = []; }
+          breakdownStatsHash['12AM - 5AM'][time].push(params.hourlyTaxiAvailabilityCountData[key]);
+
+          // for rendering horizontal barchart
           hourlyOffPeakTaxiAvailabilityCount2.push(params.hourlyTaxiAvailabilityCountData[key]);
           break;
       }
     });
+
+    // find the best time/most availability in peak hours 1
+    Object.keys(breakdownStatsHash['6AM - 9AM']).map(function(key, index) {
+      if ( peakHighTaxiAvgAvailabilityCount1.count == null )
+        peakHighTaxiAvgAvailabilityCount1.count = 0;
+      
+      var flattenOverallArray = [];
+      breakdownStatsHash['6AM - 9AM'][key].forEach(function(array) {
+        flattenOverallArray = flattenOverallArray.concat(array);
+      });
+
+      var sum = flattenOverallArray.reduce(function(a, b) { return a + b; });
+      var avg = Math.round(sum / flattenOverallArray.length);
+
+      if (avg > peakHighTaxiAvgAvailabilityCount1.count) {
+        peakHighTaxiAvgAvailabilityCount1.time = key;
+        peakHighTaxiAvgAvailabilityCount1.count = avg;
+      }
+    });
     
+    // find the best time/most availability in peak hours 2
+    Object.keys(breakdownStatsHash['6PM - 11PM']).map(function(key, index) {
+      if ( peakHighTaxiAvgAvailabilityCount2.count == null )
+        peakHighTaxiAvgAvailabilityCount2.count = 0;
+      
+      var flattenOverallArray = [];
+      breakdownStatsHash['6PM - 11PM'][key].forEach(function(array) {
+        flattenOverallArray = flattenOverallArray.concat(array);
+      });
+
+      var sum = flattenOverallArray.reduce(function(a, b) { return a + b; });
+      var avg = Math.round(sum / flattenOverallArray.length);
+
+      if (avg > peakHighTaxiAvgAvailabilityCount2.count) {
+        peakHighTaxiAvgAvailabilityCount2.time = key;
+        peakHighTaxiAvgAvailabilityCount2.count = avg;
+      }
+    });
+
+    // find the best time/most availability in peak hours 1
+    Object.keys(breakdownStatsHash['10AM - 5PM']).map(function(key, index) {
+      if ( offPeakHighTaxiAvgAvailabilityCount1.count == null )
+        offPeakHighTaxiAvgAvailabilityCount1.count = 0;
+      
+      var flattenOverallArray = [];
+      breakdownStatsHash['10AM - 5PM'][key].forEach(function(array) {
+        flattenOverallArray = flattenOverallArray.concat(array);
+      });
+
+      var sum = flattenOverallArray.reduce(function(a, b) { return a + b; });
+      var avg = Math.round(sum / flattenOverallArray.length);
+
+      if (avg > offPeakHighTaxiAvgAvailabilityCount1.count) {
+        offPeakHighTaxiAvgAvailabilityCount1.time = key;
+        offPeakHighTaxiAvgAvailabilityCount1.count = avg;
+      }
+    });
+
+    // find the best time/most availability in peak hours 2
+    Object.keys(breakdownStatsHash['10AM - 5PM']).map(function(key, index) {
+      if ( offPeakHighTaxiAvgAvailabilityCount2.count == null ) {
+        offPeakHighTaxiAvgAvailabilityCount2.time = "";
+        offPeakHighTaxiAvgAvailabilityCount2.count = 0;
+      }
+      
+      var flattenOverallArray = [];
+      breakdownStatsHash['10AM - 5PM'][key].forEach(function(array) {
+        flattenOverallArray = flattenOverallArray.concat(array);
+      });
+
+      var sum = flattenOverallArray.reduce(function(a, b) { return a + b; });
+      var avg = Math.round(sum / flattenOverallArray.length);
+
+      if (avg > offPeakHighTaxiAvgAvailabilityCount2.count && avg != offPeakHighTaxiAvgAvailabilityCount1.count) {
+        offPeakHighTaxiAvgAvailabilityCount2.time = key;
+        offPeakHighTaxiAvgAvailabilityCount2.count = avg;
+      }
+    });
+
+    weeklyStatisticsChartSvg.select('.highest-availability-date-1')
+      .classed('crunching-statistics', false)
+      .attr('opacity', 0)
+      .transition()
+      .duration(500)
+      .attr('opacity', 1)
+      .text(peakHighTaxiAvgAvailabilityCount1.time);
+
+    weeklyStatisticsChartSvg.select('.highest-availability-date-2')
+      .classed('crunching-statistics', false)
+      .attr('opacity', 0)
+      .transition()
+      .duration(500)
+      .attr('opacity', 1)
+      .text(peakHighTaxiAvgAvailabilityCount2.time);
+
+    weeklyStatisticsChartSvg.select('.highest-availability-count-1')
+      .classed('crunching-statistics', false)
+      .transition()
+      .duration(500)
+      .on("start", function repeat() {
+          d3.active(this)
+            .tween("text", function() {
+          var that = d3.select(this);
+          var i = d3.interpolateNumber(0, peakHighTaxiAvgAvailabilityCount1.count);
+          return function(t) { that.text(format(i(t)) + " Taxis"); };
+        })
+      });
+
+    weeklyStatisticsChartSvg.select('.highest-availability-count-2')
+      .classed('crunching-statistics', false)
+      .transition()
+      .duration(500)
+      .on("start", function repeat() {
+          d3.active(this)
+            .tween("text", function() {
+          var that = d3.select(this);
+          var i = d3.interpolateNumber(0, peakHighTaxiAvgAvailabilityCount2.count);
+          return function(t) { that.text(format(i(t)) + " Taxis"); };
+        })
+      });
+
+    weeklyStatisticsChartSvg.select('.lowest-availability-date-1')
+      .classed('crunching-statistics', false)
+      .attr('opacity', 0)
+      .transition()
+      .duration(500)
+      .attr('opacity', 1)
+      .text(offPeakHighTaxiAvgAvailabilityCount1.time);
+
+    weeklyStatisticsChartSvg.select('.lowest-availability-count-1')
+      .classed('crunching-statistics', false)
+      .transition()
+      .duration(500)
+      .on("start", function repeat() {
+          d3.active(this)
+            .tween("text", function() {
+          var that = d3.select(this);
+          var i = d3.interpolateNumber(0, offPeakHighTaxiAvgAvailabilityCount1.count);
+          return function(t) { that.text(format(i(t)) + " Taxis"); };
+        })
+      });
+
+    weeklyStatisticsChartSvg.select('.lowest-availability-date-2')
+      .classed('crunching-statistics', false)
+      .attr('opacity', 0)
+      .transition()
+      .duration(500)
+      .attr('opacity', 1)
+      .text(offPeakHighTaxiAvgAvailabilityCount2.time);
+
+    weeklyStatisticsChartSvg.select('.lowest-availability-count-2')
+      .classed('crunching-statistics', false)
+      .transition()
+      .duration(500)
+      .on("start", function repeat() {
+          d3.active(this)
+            .tween("text", function() {
+          var that = d3.select(this);
+          var i = d3.interpolateNumber(0, offPeakHighTaxiAvgAvailabilityCount2.count);
+          return function(t) { that.text(format(i(t)) + " Taxis"); };
+        })
+      });
+
     this.selectAll('.peak-timing-count').remove()
     this.selectAll('.offpeak-timing-count').remove()
     
@@ -1401,5 +1600,4 @@ $(function() {
       .attr('width', 950)
       .attr('height',  60 + (breakdownStats.length * 60));
   })
-
 });

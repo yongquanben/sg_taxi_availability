@@ -201,13 +201,13 @@ div.tooltip-content {
 	fill: #fff;
 }
 
-.highest-availability-count, .lowest-availability-count, .peak-timing-count, .offpeak-timing-count {
+.highest-availability-count-1, .highest-availability-count-2, .lowest-availability-count-1, .lowest-availability-count-2, .peak-timing-count, .offpeak-timing-count {
 	font-size: 22px;
 	font-weight: bold;
 	fill: #fff;
 }
 
-.highest-availability-date, .lowest-availability-date {
+.highest-availability-date-1, .highest-availability-date-2, .lowest-availability-date-1, .lowest-availability-date-2 {
 	font-size: 13px;
 	fill: #fff;
 }
@@ -244,13 +244,13 @@ div.tooltip-content {
 	fill: #333;
 }
 
-.highest-availability-icon, .lowest-availability-icon {
+.highest-availability-icon-1, .highest-availability-icon-2, .lowest-availability-icon-1, .lowest-availability-icon-2 {
 	font-family: FontAwesome;
 	fill: #fff;
 	font-size: 32px;
 }
 
-.highest-availability-circle, .lowest-availability-circle {
+.highest-availability-circle-1, .highest-availability-circle-2, .lowest-availability-circle-1, .lowest-availability-circle-2 {
 	fill: none;
 	stroke: #fff;
 	stroke-width: 1.5px;
